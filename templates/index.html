@@ -642,14 +642,14 @@ async function adminUploadFile(file,tipo='medico'){
     const processed=rows.map((row,i)=>{
       const get=f=>c[f]?String(row[c[f]]||''):'';
       const num=f=>{const n=parseFloat(get(f).replace(/[^0-9.,-]/g,'').replace(',','.'));return isNaN(n)?0:n;};
-      return {crm:get('crm')||String(i+1),nome:get('nome')||'Registro '+(i+1),uf:get('uf').toUpperCase().substring(0,2)||null,cidade:get('cidade')||null,seg:'',seg_influ:dM[get('segInflu').trim()]||get('segInflu').trim(),seg_presc:cM[get('segPresc').trim()]||get('segPresc').trim(),nseg:num('nseg'),consulta:num('consulta'),local:get('local')||'',pacientes:num('pacientes'),esp1:get('esp1')||null,esp2:get('esp2')||null,cat_esp:get('catEsp')||null,tipo:'medico'};
+      return {crm:get('crm')||String(i+1),nome:get('nome')||'Registro '+(i+1),uf:get('uf').toUpperCase().substring(0,2)||null,cidade:get('cidade')||null,seg:'',seg_influ:dM[get('segInflu').trim()]||get('segInflu').trim(),seg_presc:cM[get('segPresc').trim()]||get('segPresc').trim(),nseg:num('nseg'),consulta:num('consulta'),local:get('local')||'',pacientes:num('pacientes'),esp1:get('esp1')||null,esp2:get('esp2')||null,cat_esp:get('catEsp')||null,tipo:tipo};
     }).filter(r=>r.nome&&r.nome!=='Registro '+(rows.indexOf(rows.find(x=>!x))+1));
     setP(60,'Enviando para o servidor...');
-    const resp=await fetch('/api/upload',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({rows:processed,nome:file.name})});
+    const resp=await fetch('/api/upload',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({rows:processed,nome:file.name,tipo:tipo})});
     const result=await resp.json();
     if(!resp.ok){showStatus('uploadStatus'+sfx,'err','❌ '+result.error);setP(0,'Erro');return;}
     setP(100,'Concluído!');
-    document.getElementById('uploadMsg').textContent='✅ '+processed.length.toLocaleString('pt-BR')+' registros salvos!';
+    document.getElementById('uploadMsg'+sfx).textContent='✅ '+processed.length.toLocaleString('pt-BR')+' registros salvos!';
     document.getElementById('uploadArea'+sfx).classList.add('done');
     showStatus('uploadStatus'+sfx,'ok','✅ '+processed.length.toLocaleString('pt-BR')+' registros carregados! Todos os usuários já veem os dados atualizados.');
     carregarDatasetInfo();
