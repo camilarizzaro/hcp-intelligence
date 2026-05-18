@@ -1,0 +1,1402 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HCP Intelligence — Equilibrium</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+#authScreen{position:fixed;inset:0;background:linear-gradient(135deg,#1A0A3C,#2D1472 50%,#4B2D8F);display:flex;align-items:center;justify-content:center;z-index:9999;font-family:'Open Sans',sans-serif;}
+.auth-card{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);border-radius:20px;padding:44px 40px;width:100%;max-width:400px;backdrop-filter:blur(20px);box-shadow:0 24px 64px rgba(0,0,0,0.4);}
+.auth-logo{display:flex;align-items:center;gap:12px;margin-bottom:32px;}
+.auth-logo-q{width:44px;height:44px;border-radius:50%;background:#F47920;display:flex;align-items:center;justify-content:center;font-family:'Montserrat',sans-serif;font-weight:800;font-size:20px;color:#fff;}
+.auth-logo-text h2{font-family:'Montserrat',sans-serif;font-size:18px;font-weight:700;color:#fff;}
+.auth-logo-text small{font-size:10px;color:rgba(255,255,255,0.4);letter-spacing:1.5px;text-transform:uppercase;}
+.auth-title{font-family:'Montserrat',sans-serif;font-size:22px;font-weight:700;color:#fff;margin-bottom:6px;}
+.auth-sub{font-size:13px;color:rgba(255,255,255,0.45);margin-bottom:28px;}
+.auth-field{margin-bottom:16px;}
+.auth-field label{display:block;font-size:11px;font-weight:600;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:7px;font-family:'Montserrat',sans-serif;}
+.auth-field input{width:100%;padding:13px 16px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:10px;color:#fff;font-size:14px;outline:none;transition:border-color 0.2s;box-sizing:border-box;}
+.auth-field input:focus{border-color:rgba(244,121,32,0.7);}
+.auth-field input::placeholder{color:rgba(255,255,255,0.25);}
+.auth-btn{width:100%;padding:14px;background:linear-gradient(135deg,#F47920,#E05A00);border:none;border-radius:10px;color:#fff;font-size:14px;font-weight:700;font-family:'Montserrat',sans-serif;cursor:pointer;margin-top:8px;transition:opacity 0.2s;}
+.auth-btn:hover{opacity:0.9;}.auth-btn:disabled{opacity:0.5;cursor:not-allowed;}
+.auth-error{background:rgba(220,38,38,0.15);border:1px solid rgba(220,38,38,0.3);border-radius:8px;padding:10px 14px;font-size:13px;color:#FCA5A5;margin-bottom:16px;display:none;}
+.auth-footer{text-align:center;margin-top:20px;font-size:11px;color:rgba(255,255,255,0.2);}
+#loadingScreen{position:fixed;inset:0;background:linear-gradient(135deg,#1A0A3C,#2D1472);display:none;flex-direction:column;align-items:center;justify-content:center;z-index:8888;}
+.loading-q{width:56px;height:56px;border-radius:50%;background:#F47920;display:flex;align-items:center;justify-content:center;font-family:'Montserrat',sans-serif;font-weight:800;font-size:26px;color:#fff;margin-bottom:20px;}
+.loading-msg{font-family:'Montserrat',sans-serif;font-size:14px;font-weight:600;color:rgba(255,255,255,0.7);margin-bottom:24px;}
+.loading-spinner{width:36px;height:36px;border:3px solid rgba(255,255,255,0.1);border-top-color:#F47920;border-radius:50%;animation:spin 0.8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+#adminPanel{position:fixed;inset:0;background:#F0EFF5;z-index:7777;font-family:'Open Sans',sans-serif;overflow-y:auto;display:none;}
+.admin-header{background:linear-gradient(135deg,#4B2D8F,#6A42C2);padding:14px 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;box-shadow:0 2px 20px rgba(75,45,143,0.3);}
+.admin-header h1{font-family:'Montserrat',sans-serif;font-size:16px;font-weight:700;color:#fff;}
+.admin-header-right{display:flex;align-items:center;gap:10px;}
+.admin-nav{display:flex;gap:6px;}
+.admin-nav-btn{padding:7px 16px;border-radius:20px;border:1px solid rgba(255,255,255,0.25);background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.7);font-size:11px;font-weight:700;font-family:'Montserrat',sans-serif;cursor:pointer;transition:all 0.15s;}
+.admin-nav-btn:hover,.admin-nav-btn.active{background:rgba(255,255,255,0.25);color:#fff;}
+.admin-content{max-width:960px;margin:0 auto;padding:28px 20px;}
+.admin-section{background:#fff;border-radius:14px;padding:24px;margin-bottom:20px;box-shadow:0 2px 16px rgba(75,45,143,0.07);border:1px solid #E2DCF0;}
+.admin-section h2{font-family:'Montserrat',sans-serif;font-size:14px;font-weight:700;color:#4B2D8F;margin-bottom:16px;}
+.admin-upload-area{border:2px dashed #C4B5E8;border-radius:12px;padding:32px;text-align:center;cursor:pointer;transition:all 0.2s;background:#F7F5FB;}
+.admin-upload-area:hover,.admin-upload-area.drag{border-color:#F47920;background:#FFF8F3;}
+.admin-upload-area.done{border-color:#16A34A;border-style:solid;}
+.admin-upload-area h3{font-family:'Montserrat',sans-serif;font-size:14px;font-weight:700;color:#4B2D8F;margin:10px 0 4px;}
+.admin-upload-area p{font-size:12px;color:#7A6FA0;}
+.admin-btn{padding:10px 22px;border-radius:8px;border:none;font-size:12px;font-weight:700;font-family:'Montserrat',sans-serif;cursor:pointer;transition:all 0.15s;}
+.admin-btn-primary{background:linear-gradient(135deg,#4B2D8F,#6A42C2);color:#fff;}
+.admin-btn-primary:hover{opacity:0.9;}
+.admin-btn-danger{background:rgba(220,38,38,0.1);color:#DC2626;border:1px solid rgba(220,38,38,0.2);}
+.admin-table{width:100%;border-collapse:collapse;font-size:13px;}
+.admin-table th{text-align:left;font-family:'Montserrat',sans-serif;font-size:10px;font-weight:700;text-transform:uppercase;color:#7A6FA0;padding:8px 12px;border-bottom:2px solid #E2DCF0;}
+.admin-table td{padding:10px 12px;border-bottom:1px solid #F0EFF5;color:#1A1A2E;}
+.admin-table tr:hover td{background:#F7F5FB;}
+.admin-tag{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;font-family:'Montserrat',sans-serif;}
+.admin-tag-admin{background:rgba(75,45,143,0.12);color:#4B2D8F;}
+.admin-tag-user{background:rgba(22,163,74,0.1);color:#16A34A;}
+.admin-form{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.admin-form-field label{display:block;font-size:11px;font-weight:600;color:#7A6FA0;text-transform:uppercase;margin-bottom:5px;font-family:'Montserrat',sans-serif;}
+.admin-form-field input,.admin-form-field select{width:100%;padding:10px 12px;border:1.5px solid #E2DCF0;border-radius:8px;font-size:13px;color:#1A1A2E;outline:none;background:#fff;box-sizing:border-box;}
+.admin-form-field input:focus,.admin-form-field select:focus{border-color:#4B2D8F;}
+.admin-status{padding:10px 14px;border-radius:8px;font-size:13px;margin-top:12px;display:none;}
+.admin-status.ok{background:rgba(22,163,74,0.1);color:#16A34A;border:1px solid rgba(22,163,74,0.2);}
+.admin-status.err{background:rgba(220,38,38,0.1);color:#DC2626;border:1px solid rgba(220,38,38,0.2);}
+.progress-bar{height:6px;background:#E2DCF0;border-radius:3px;overflow:hidden;margin-top:8px;}
+.progress-fill{height:100%;background:linear-gradient(90deg,#4B2D8F,#F47920);border-radius:3px;transition:width 0.3s;}
+.dataset-card{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:#F7F5FB;border-radius:10px;border:1px solid #E2DCF0;}
+.dataset-card h3{font-family:'Montserrat',sans-serif;font-size:13px;font-weight:700;color:#4B2D8F;}
+.dataset-card p{font-size:11px;color:#7A6FA0;margin-top:2px;}
+
+:root{
+  --bg:#F0EFF5;--surface:#fff;--surface2:#F7F5FB;--border:#E2DCF0;
+  --primary:#4B2D8F;--primary2:#6A42C2;--orange:#F47920;--orange2:#E05A00;
+  --green:#16A34A;--blue:#0284C7;--text:#1A1A2E;--muted:#7A6FA0;
+  --radius:14px;--shadow:0 2px 16px rgba(75,45,143,0.08);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Open Sans',sans-serif;font-size:14px;min-height:100vh;}
+
+/* HEADER */
+header{background:linear-gradient(135deg,var(--primary) 0%,var(--primary2) 100%);padding:13px 26px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:300;box-shadow:0 2px 20px rgba(75,45,143,0.3);}
+.logo-area{display:flex;align-items:center;gap:11px;}
+.logo-q{width:36px;height:36px;border-radius:50%;background:var(--orange);display:flex;align-items:center;justify-content:center;font-family:'Montserrat',sans-serif;font-weight:800;font-size:17px;color:#fff;flex-shrink:0;}
+.logo-text h1{font-family:'Montserrat',sans-serif;font-size:16px;font-weight:700;color:#fff;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.prof-switcher{display:inline-flex;background:rgba(255,255,255,0.15);border-radius:20px;overflow:hidden;border:1px solid rgba(255,255,255,0.2);}
+.prof-btn{padding:3px 13px;font-size:11px;font-family:'Montserrat',sans-serif;font-weight:700;color:rgba(255,255,255,0.55);cursor:pointer;transition:all 0.18s;border:none;background:transparent;}
+.prof-btn.active{background:var(--orange);color:#fff;border-radius:20px;}
+.logo-text small{font-size:10px;color:rgba(255,255,255,0.5);font-weight:300;letter-spacing:1px;text-transform:uppercase;display:block;margin-top:1px;}
+.header-right{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.badge{padding:4px 11px;border-radius:20px;font-size:10px;font-weight:700;font-family:'Montserrat',sans-serif;}
+.b-demo{background:rgba(244,121,32,0.25);color:#FFB870;border:1px solid rgba(244,121,32,0.4);}
+.b-med{background:rgba(100,220,120,0.2);color:#7DEFA0;border:1px solid rgba(100,220,120,0.4);display:none;}
+.b-nut{background:rgba(100,180,255,0.2);color:#7DCFFF;border:1px solid rgba(100,180,255,0.4);display:none;}
+
+/* UPLOAD DUPLO */
+#uploadSection{background:var(--surface);border-bottom:2px solid var(--border);padding:14px 26px;display:flex;gap:12px;flex-wrap:wrap;align-items:stretch;}
+.upload-slot{display:flex;flex-direction:column;gap:6px;flex:1;min-width:220px;}
+.upload-slot-label{font-size:10px;font-weight:700;font-family:'Montserrat',sans-serif;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted);}
+.upload-box{border:2px dashed var(--primary2);border-radius:10px;padding:11px 16px;display:flex;align-items:center;gap:10px;cursor:pointer;background:var(--surface2);transition:all 0.18s;}
+.upload-box:hover,.upload-box.dragover{border-color:var(--orange);background:#FFF8F3;}
+.upload-box.loaded{border-color:var(--green);border-style:solid;background:rgba(22,163,74,0.04);}
+.upload-icon{font-size:20px;flex-shrink:0;}
+.upload-text strong{font-family:'Montserrat',sans-serif;font-size:11px;color:var(--primary);display:block;}
+.upload-text span{font-size:10px;color:var(--muted);}
+.upload-text .loaded-name{font-size:11px;color:var(--green);font-weight:600;}
+.upload-divider{width:1px;background:var(--border);align-self:stretch;margin:4px 0;}
+.upload-info{flex:1.5;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px 14px;min-width:180px;}
+.upload-info p{font-size:11px;color:var(--muted);}
+.upload-info strong{color:var(--primary);}
+.col-chips{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;}
+.col-chip{padding:2px 8px;border-radius:5px;font-size:10px;font-weight:700;font-family:'Montserrat',sans-serif;}
+.col-chip.ok{background:rgba(244,121,32,0.1);color:var(--orange2);border:1px solid rgba(244,121,32,0.2);}
+.col-chip.miss{background:rgba(120,120,120,0.07);color:#bbb;border:1px solid #e8e8e8;}
+input[type=file]{display:none;}
+
+/* BANNER FILTRO ATIVO */
+#activeFilterBanner{display:none;background:rgba(244,121,32,0.07);border:1px solid rgba(244,121,32,0.2);border-radius:8px;padding:5px 14px;font-size:12px;color:var(--orange2);margin:10px 26px 0;font-weight:600;display:flex;align-items:center;justify-content:space-between;}
+#activeFilterBanner.vis{display:flex;}
+.clear-btn{cursor:pointer;font-size:11px;opacity:0.7;padding:2px 8px;border-radius:5px;background:rgba(244,121,32,0.1);transition:opacity 0.15s;}
+.clear-btn:hover{opacity:1;}
+
+/* FILTERS */
+.filters-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:9px 26px;display:flex;align-items:center;gap:7px;flex-wrap:wrap;}
+.filter-label{color:var(--muted);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;font-family:'Montserrat',sans-serif;}
+select{background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:7px;padding:5px 26px 5px 9px;font-family:'Open Sans',sans-serif;font-size:12px;cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%237A6FA0'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;}
+select:focus{outline:none;border-color:var(--primary);}
+.btn-reset{background:transparent;border:1px solid var(--border);border-radius:7px;padding:5px 11px;font-size:11px;color:var(--muted);cursor:pointer;font-family:'Open Sans',sans-serif;transition:all 0.15s;}
+.btn-reset:hover{border-color:var(--orange);color:var(--orange);}
+
+/* MAIN */
+main{padding:18px 26px;max-width:1600px;margin:0 auto;}
+
+/* KPI */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:11px;margin-bottom:18px;}
+.kpi-card{background:var(--surface);border-radius:var(--radius);padding:15px 17px;position:relative;overflow:hidden;box-shadow:var(--shadow);border:1px solid var(--border);transition:transform 0.15s,box-shadow 0.15s;}
+.kpi-card:hover{transform:translateY(-2px);box-shadow:0 6px 24px rgba(75,45,143,0.13);}
+.kpi-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;}
+.kpi-card.c1::after{background:var(--primary)}.kpi-card.c2::after{background:var(--orange)}.kpi-card.c3::after{background:var(--primary2)}.kpi-card.c4::after{background:var(--blue)}
+.kpi-icon{font-size:20px;margin-bottom:7px;}
+.kpi-label{font-size:10px;font-weight:700;font-family:'Montserrat',sans-serif;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted);margin-bottom:4px;}
+.kpi-value{font-size:24px;font-family:'Montserrat',sans-serif;font-weight:800;color:var(--primary);line-height:1;margin-bottom:3px;}
+.kpi-sub{font-size:11px;color:var(--muted);}
+
+/* GRIDS */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:13px;margin-bottom:13px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:13px;margin-bottom:13px;}
+.g21{display:grid;grid-template-columns:2fr 1fr;gap:13px;margin-bottom:13px;}
+
+.card{background:var(--surface);border-radius:var(--radius);padding:17px 19px;box-shadow:var(--shadow);border:1px solid var(--border);}
+.card-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:13px;}
+.card-title{font-family:'Montserrat',sans-serif;font-size:13px;font-weight:700;color:var(--primary);}
+.card-subtitle{font-size:11px;color:var(--muted);margin-top:2px;}
+.card-tag{font-size:10px;font-weight:700;padding:3px 8px;border-radius:9px;font-family:'Montserrat',sans-serif;background:rgba(244,121,32,0.1);color:var(--orange2);border:1px solid rgba(244,121,32,0.2);white-space:nowrap;flex-shrink:0;}
+.card-tag.interactive{background:rgba(75,45,143,0.08);color:var(--primary2);border-color:rgba(75,45,143,0.2);}
+canvas{max-height:195px;}
+.clickable-chart{cursor:pointer;}
+
+/* SEG CARDS */
+.seg-wrap{display:flex;gap:7px;margin-top:9px;}
+.seg-card{flex:1;border-radius:9px;padding:10px 6px;text-align:center;border:2px solid var(--border);background:var(--surface2);cursor:pointer;transition:all 0.18s;}
+.seg-card:hover{border-color:var(--orange);transform:translateY(-1px);}
+.seg-card.active-seg{border-color:var(--orange);background:#FFF3E8;box-shadow:0 2px 10px rgba(244,121,32,0.18);}
+.seg-label{font-size:10px;font-family:'Montserrat',sans-serif;font-weight:700;text-transform:uppercase;color:var(--muted);margin-bottom:2px;}
+.seg-value{font-family:'Montserrat',sans-serif;font-size:19px;font-weight:800;}
+.seg-sub{font-size:10px;color:var(--muted);margin-top:1px;}
+.kol{color:var(--orange)}.kof{color:var(--primary2)}.hcp{color:var(--green)}.sem{color:#bbb;}
+
+/* COMPLETUDE */
+.completude-row{display:flex;align-items:center;gap:9px;margin-bottom:8px;}
+.completude-name{width:78px;font-size:11px;color:var(--muted);font-weight:600;flex-shrink:0;}
+.completude-bar-bg{flex:1;background:var(--border);border-radius:4px;height:7px;overflow:hidden;}
+.completude-bar{height:7px;border-radius:4px;background:linear-gradient(90deg,var(--primary),var(--orange));}
+.completude-pct{width:34px;text-align:right;font-size:12px;font-weight:700;color:var(--primary);}
+
+/* TABLE */
+.table-wrap{overflow-x:auto;margin-top:5px;}
+table{width:100%;border-collapse:collapse;font-size:12px;}
+thead th{text-align:left;padding:8px 10px;color:var(--muted);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.4px;border-bottom:2px solid var(--border);font-family:'Montserrat',sans-serif;}
+tbody tr{border-bottom:1px solid var(--border);transition:background 0.1s;}
+tbody tr:hover{background:var(--surface2);}
+tbody td{padding:8px 10px;}
+.tag{display:inline-block;padding:2px 7px;border-radius:5px;font-size:10px;font-weight:700;font-family:'Montserrat',sans-serif;}
+.tag-kol{background:rgba(244,121,32,0.12);color:var(--orange2);}
+.tag-kof{background:rgba(106,66,194,0.12);color:var(--primary2);}
+.tag-hcp{background:rgba(22,163,74,0.12);color:var(--green);}
+.tag-sem{background:rgba(150,150,150,0.1);color:#bbb;}
+.tag-sim{background:rgba(22,163,74,0.1);color:var(--green);}
+
+@media(max-width:900px){
+  .g2,.g3,.g21{grid-template-columns:1fr;}
+  main,#uploadSection,.filters-bar{padding-left:12px;padding-right:12px;}
+  #activeFilterBanner{margin-left:12px;margin-right:12px;}
+}
+.tag-dol10k{background:rgba(8,145,178,.12);color:#0891B2}
+.tag-dol30k{background:rgba(147,51,234,.12);color:#9333EA}
+.tag-dol50k{background:rgba(190,24,93,.12);color:#BE185D}
+.tag-dol100k{background:rgba(220,38,38,.12);color:#DC2626}
+.tag-cat1{background:rgba(244,121,32,.12);color:#E05A00}
+.tag-cat2{background:rgba(2,132,199,.12);color:#0284C7}
+.tag-cat3{background:rgba(22,163,74,.12);color:#16A34A}
+.tag-cat4{background:rgba(150,150,150,.12);color:#6B7280}
+.dol10k{color:#0891B2}.dol30k{color:#9333EA}.dol50k{color:#BE185D}.dol100k{color:#DC2626}
+.cat1{color:#F47920}.cat2{color:#0284C7}.cat3{color:#16A34A}.cat4{color:#6B7280}
+
+/* Modal ver todas */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(30,20,60,0.45);z-index:9999;align-items:center;justify-content:center;}
+.modal-overlay.vis{display:flex;}
+.modal-box{background:#fff;border-radius:16px;padding:20px 24px;width:520px;max-width:95vw;max-height:80vh;display:flex;flex-direction:column;box-shadow:0 8px 40px rgba(75,45,143,0.25);}
+.modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.modal-title{font-family:'Montserrat',sans-serif;font-size:14px;font-weight:700;color:var(--purple);}
+.modal-close{background:none;border:none;cursor:pointer;font-size:20px;color:#aaa;line-height:1;}
+.modal-close:hover{color:var(--purple);}
+.modal-list{overflow-y:auto;flex:1;}
+.modal-item{display:flex;align-items:center;justify-content:space-between;padding:7px 10px;border-radius:8px;cursor:pointer;margin-bottom:2px;transition:background 0.12s;}
+.modal-item:hover{background:#F0EFF5;}
+.modal-item.active{background:rgba(244,121,32,0.1);border:1px solid rgba(244,121,32,0.3);}
+.modal-item-name{font-size:12px;color:#3D2B6B;font-weight:600;}
+.modal-item-bar{flex:1;margin:0 10px;height:6px;background:#E2DCF0;border-radius:3px;overflow:hidden;}
+.modal-item-fill{height:6px;border-radius:3px;background:var(--purple2);}
+.modal-item-fill.active{background:var(--orange);}
+.modal-item-count{font-size:11px;color:#7A6FA0;font-weight:700;min-width:36px;text-align:right;}
+
+/* TOGGLE ABS / PCT */
+.view-toggle{display:flex;background:var(--surface2);border:1px solid var(--border);border-radius:8px;overflow:hidden;flex-shrink:0;}
+.view-btn{padding:3px 11px;font-size:10px;font-weight:700;font-family:'Montserrat',sans-serif;color:var(--muted);cursor:pointer;border:none;background:transparent;transition:all 0.15s;white-space:nowrap;}
+.view-btn.active{background:var(--primary);color:#fff;}
+
+.btn-ver-todas{background:none;border:1px solid #E2DCF0;border-radius:8px;padding:3px 10px;font-size:10px;font-weight:700;font-family:'Montserrat',sans-serif;color:#7A6FA0;cursor:pointer;transition:all 0.15s;}
+.btn-ver-todas:hover{border-color:var(--purple);color:var(--purple);}
+
+</style>
+</head>
+<body>
+
+<div id="authScreen">
+  <div class="auth-card">
+    <div class="auth-logo"><div class="auth-logo-q">Q</div><div class="auth-logo-text"><h2>HCP Intelligence</h2><small>Equilibrium · Acesso restrito</small></div></div>
+    <div class="auth-title">Entrar</div>
+    <div class="auth-sub">Use seu email e senha para acessar</div>
+    <div class="auth-error" id="authError"></div>
+    <div class="auth-field"><label>Email</label><input type="email" id="authEmail" placeholder="seu@email.com" onkeydown="if(event.key==='Enter')login()"></div>
+    <div class="auth-field"><label>Senha</label><input type="password" id="authPassword" placeholder="••••••••" onkeydown="if(event.key==='Enter')login()"></div>
+    <button class="auth-btn" id="authBtn" onclick="login()">Entrar</button>
+    <div class="auth-footer">HCP Intelligence © Equilibrium 2025</div>
+  </div>
+</div>
+
+<div id="loadingScreen">
+  <div class="loading-q">Q</div>
+  <div class="loading-msg" id="loadingMsg">Carregando...</div>
+  <div class="loading-spinner"></div>
+</div>
+
+<div id="adminPanel">
+  <div class="admin-header">
+    <h1>⚙️ Painel Admin — HCP Intelligence</h1>
+    <div class="admin-header-right">
+      <span style="font-size:12px;color:rgba(255,255,255,0.6);" id="adminEmail"></span>
+      <div class="admin-nav">
+        <button class="admin-nav-btn active" id="navDados" onclick="adminTab('dados')">📊 Dados</button>
+        <button class="admin-nav-btn" id="navUsuarios" onclick="adminTab('usuarios')">👥 Usuários</button>
+        <button class="admin-nav-btn" id="navAcesso" onclick="adminTab('acesso')">🔗 Acesso</button>
+      </div>
+      <button class="admin-btn admin-btn-primary" onclick="irDashboard()" style="padding:7px 14px;font-size:11px;">Ver Dashboard</button>
+      <button class="admin-nav-btn" onclick="logout()">Sair</button>
+    </div>
+  </div>
+  <div class="admin-content">
+    <div id="tabDados">
+      <div class="admin-section"><h2>📁 Dataset atual</h2><div id="datasetInfo" style="color:#7A6FA0;font-size:13px;">Carregando...</div></div>
+      <div class="admin-section">
+        <h2>⬆️ Carregar novo Excel</h2>
+        <div class="admin-upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()"
+          ondragover="event.preventDefault();this.classList.add('drag')"
+          ondragleave="this.classList.remove('drag')"
+          ondrop="event.preventDefault();this.classList.remove('drag');processFile(event.dataTransfer.files[0])">
+          <div style="font-size:36px;">📊</div>
+          <h3>Clique ou arraste o Excel aqui</h3>
+          <p>Arquivo .xlsx ou .csv</p>
+          <p id="uploadMsg" style="font-weight:600;color:#4B2D8F;margin-top:8px;"></p>
+        </div>
+        <input type="file" id="fileInput" accept=".xlsx,.csv" style="display:none" onchange="processFile(this.files[0])">
+        <div id="progressWrap" style="display:none;margin-top:12px;">
+          <div style="display:flex;justify-content:space-between;font-size:12px;color:#7A6FA0;margin-bottom:4px;"><span id="progressText">Processando...</span><span id="progressPct">0%</span></div>
+          <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+        </div>
+        <div class="admin-status" id="uploadStatus"></div>
+      </div>
+    </div>
+    <div id="tabUsuarios" style="display:none">
+      <div class="admin-section">
+        <h2>➕ Novo usuário</h2>
+        <div class="admin-form">
+          <div class="admin-form-field"><label>Nome</label><input type="text" id="novoNome" placeholder="Nome completo"></div>
+          <div class="admin-form-field"><label>Email</label><input type="email" id="novoEmail" placeholder="email@exemplo.com"></div>
+          <div class="admin-form-field"><label>Senha</label><input type="password" id="novaSenha" placeholder="mínimo 8 caracteres"></div>
+          <div class="admin-form-field"><label>Perfil</label><select id="novoPerfil"><option value="viewer">Visualizador</option><option value="admin">Admin</option></select></div>
+        </div>
+        <div style="margin-top:14px;"><button class="admin-btn admin-btn-primary" onclick="criarUsuario()">Criar usuário</button></div>
+        <div class="admin-status" id="userStatus"></div>
+      </div>
+      <div class="admin-section"><h2>👥 Usuários</h2><div id="listaUsuarios">Carregando...</div></div>
+    </div>
+    <div id="tabAcesso" style="display:none">
+      <div class="admin-section">
+        <h2>🔗 Link de acesso</h2>
+        <p style="font-size:13px;color:#7A6FA0;margin-bottom:16px;">Compartilhe com sua equipe. Login obrigatório.</p>
+        <div style="display:flex;gap:10px;">
+          <input type="text" id="linkInput" readonly style="flex:1;padding:11px 14px;border:1.5px solid #E2DCF0;border-radius:8px;font-size:13px;color:#4B2D8F;background:#F7F5FB;">
+          <button class="admin-btn admin-btn-primary" onclick="copiarLink()">Copiar</button>
+        </div>
+        <div class="admin-status" id="linkStatus"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="dashApp" style="display:none;">
+  <div id="adminBar" style="display:none;background:#4B2D8F;padding:6px 20px;align-items:center;justify-content:space-between;">
+    <span style="font-size:11px;color:rgba(255,255,255,0.6);">Modo admin</span>
+    <div style="display:flex;gap:8px;">
+      <button onclick="mostrarAdmin()" style="padding:4px 12px;border-radius:6px;border:1px solid rgba(255,255,255,0.3);background:transparent;color:#fff;font-size:11px;cursor:pointer;font-family:Montserrat,sans-serif;font-weight:700;">⚙️ Painel Admin</button>
+      <button onclick="logout()" style="padding:4px 12px;border-radius:6px;border:1px solid rgba(255,255,255,0.3);background:transparent;color:rgba(255,255,255,0.6);font-size:11px;cursor:pointer;font-family:Montserrat,sans-serif;">Sair</button>
+    </div>
+  </div>
+  <div id="userBar" style="display:none;background:#4B2D8F;padding:6px 20px;align-items:center;justify-content:space-between;">
+    <span style="font-size:11px;color:rgba(255,255,255,0.5);" id="userBarName"></span>
+    <button onclick="logout()" style="padding:4px 12px;border-radius:6px;border:1px solid rgba(255,255,255,0.3);background:transparent;color:rgba(255,255,255,0.6);font-size:11px;cursor:pointer;font-family:Montserrat,sans-serif;">Sair</button>
+  </div>
+  
+
+<header>
+  <div class="logo-area">
+    <div class="logo-q">Q</div>
+    <div class="logo-text">
+      <h1>
+        <span id="titleProf">HCP</span> Intelligence
+        <div class="prof-switcher">
+          <button class="prof-btn active" onclick="setProfissao('medico')">Médico</button>
+          <button class="prof-btn" onclick="setProfissao('nutri')">Nutricionista</button>
+        </div>
+      </h1>
+      <small>saúde · inovação · comunicação</small>
+    </div>
+  </div>
+  <div class="header-right">
+    <span class="badge b-demo" id="badgeDemo">● Demonstração</span>
+    <span class="badge b-med" id="badgeMed">● Médicos Carregados</span>
+    <span class="badge b-nut" id="badgeNut">● Nutris Carregadas</span>
+  </div>
+</header>
+
+<!-- UPLOAD DUPLO -->
+<div id="uploadSection">
+  <div class="upload-slot">
+    <div class="upload-slot-label">👨‍⚕️ Base de Médicos</div>
+    <div class="upload-box" id="dropMed" onclick="document.getElementById('fileMed').click()">
+      <div class="upload-icon">📂</div>
+      <div class="upload-text">
+        <strong id="medLabel">Clique ou arraste aqui</strong>
+        <span>.xlsx · .xls · .csv</span>
+      </div>
+    </div>
+    <input type="file" id="fileMed" accept=".xlsx,.xls,.csv">
+  </div>
+
+  <div class="upload-divider"></div>
+
+  <div class="upload-slot">
+    <div class="upload-slot-label">🥗 Base de Nutricionistas</div>
+    <div class="upload-box" id="dropNut" onclick="document.getElementById('fileNut').click()">
+      <div class="upload-icon">📂</div>
+      <div class="upload-text">
+        <strong id="nutLabel">Clique ou arraste aqui</strong>
+        <span>.xlsx · .xls · .csv</span>
+      </div>
+    </div>
+    <input type="file" id="fileNut" accept=".xlsx,.xls,.csv">
+  </div>
+
+  <div class="upload-divider"></div>
+
+  <div class="upload-info">
+    <p>🔒 <strong>Dados processados só no seu navegador.</strong> Nada é enviado a servidores.</p>
+    <div class="col-chips" id="colChips"></div>
+  </div>
+</div>
+
+<!-- BANNER FILTRO ATIVO -->
+<div id="activeFilterBanner">
+  <span id="activeFilterText">—</span>
+  <span class="clear-btn" onclick="limparFiltrosInterativos()">✕ limpar filtros interativos</span>
+</div>
+
+<!-- FILTERS -->
+<div class="filters-bar">
+  <span class="filter-label">Filtros</span>
+  <select id="filtroUF" onchange="aplicarFiltros()"><option value="">Todas as UFs</option></select>
+  <select id="filtroSeg" onchange="aplicarFiltros()" style="display:none">
+    <option value="">Todas as Segmentações</option>
+  </select>
+  <select id="filtroSegInflu" style="display:none" onchange="aplicarFiltros()">
+    <option value="">Influência — Todas</option>
+    <option>DOL >10k</option><option>DOL >30k</option>
+    <option>DOL >50k</option><option>DOL >100k</option>
+
+  </select>
+  <select id="filtroSegPresc" style="display:none" onchange="aplicarFiltros()">
+    <option value="">Produtividade — Todas</option>
+    <option>CAT1</option><option>CAT2</option><option>CAT3</option><option>CAT4</option>
+
+  </select>
+  <select id="filtroLocal" onchange="aplicarFiltros()"><option value="">Todos os Locais</option></select>
+  <select id="filtroEsp" onchange="aplicarFiltros()"><option value="">Todas as Especialidades</option></select>
+  <select id="filtroCidade" onchange="aplicarFiltros()"><option value="">Todas as Cidades</option></select>
+  <div style="margin-left:auto;display:flex;align-items:center;gap:7px;"><span class="filter-label">Visualização</span><div class="view-toggle"><button class="view-btn active" id="btnAbs" onclick="setViewMode('abs')">Nº Absoluto</button><button class="view-btn" id="btnPct" onclick="setViewMode('pct')">% do Total</button></div></div>
+  <button class="btn-reset" onclick="resetarTodosFiltros()">✕ Limpar tudo</button>
+</div>
+
+<main>
+  <!-- KPIs (4 cards, sem plano) -->
+  <div class="kpi-grid">
+    <div class="kpi-card c1"><div class="kpi-icon">👨‍⚕️</div><div class="kpi-label" id="kpiTotalLabel">Total</div><div class="kpi-value" id="kpiTotal">—</div><div class="kpi-sub" id="kpiTotalSub">na base</div></div>
+    <div class="kpi-card c2"><div class="kpi-icon">📱</div><div class="kpi-label">Média de Seguidores</div><div class="kpi-value" id="kpiSeg">—</div><div class="kpi-sub">por profissional</div></div>
+    <div class="kpi-card c3"><div class="kpi-icon">🏥</div><div class="kpi-label">Média Pacientes/dia</div><div class="kpi-value" id="kpiPac">—</div><div class="kpi-sub">por profissional</div></div>
+    <div class="kpi-card c4"><div class="kpi-icon">💲</div><div class="kpi-label">Ticket Médio</div><div class="kpi-value" id="kpiTicket">—</div><div class="kpi-sub">valor médio consulta</div></div>
+  </div>
+
+  <!-- Especialidades + Segmentação -->
+  <div class="g21">
+    <div class="card">
+      <div class="card-header">
+        <div><div class="card-title" id="espCardTitle">Top Especialidades</div><div class="card-subtitle">Clique em uma barra para filtrar</div></div>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <div class="view-toggle"><button class="view-btn active" id="btnEspMode" onclick="setEspMode('esp')">Especialidade</button><button class="view-btn" id="btnCatMode" onclick="setEspMode('cat')">Categoria</button></div>
+          <button class="btn-ver-todas" onclick="abrirModalEsp()">Ver todas ↗</button>
+        </div>
+        <span class="card-tag interactive">🖱 Clicável</span>
+      </div>
+      <canvas id="chartEsp" class="clickable-chart"></canvas>
+    </div>
+    <div class="card">
+      <div class="card-header"><div><div class="card-title" id="segTitulo">Segmentação</div><div class="card-subtitle">Clique nos cards para filtrar</div></div><span class="card-tag interactive">🖱 Clicável</span></div>
+      <canvas id="chartSeg" style="max-height:145px"></canvas>
+      <div class="seg-wrap" id="segWrap"></div>
+    </div>
+  </div>
+
+  <!-- Seg Prescrição Nutri -->
+  <div id="segPrescRow" style="display:none;margin-bottom:13px">
+    <div class="card">
+      <div class="card-header">
+        <div><div class="card-title">Segmentação por Produtividade</div><div class="card-subtitle">Clique nos cards · interseção com Influência DOL</div></div>
+        <span class="card-tag interactive">🖱 Clicável</span>
+      </div>
+      <canvas id="chartSegPresc" style="max-height:110px"></canvas>
+      <div class="seg-wrap" id="segWrapPresc"></div>
+    </div>
+  </div>
+
+  <!-- UF + Local + Cidade (todos interativos) -->
+  <div class="g3">
+    <div class="card">
+      <div class="card-header">
+        <div><div class="card-title">HCPs por UF</div><div class="card-subtitle">Clique para filtrar</div></div>
+        <span class="card-tag interactive">🖱 Clicável</span>
+      </div>
+      <canvas id="chartUF" class="clickable-chart"></canvas>
+    </div>
+    <div class="card">
+      <div class="card-header"><div><div class="card-title">Local de Atendimento</div><div class="card-subtitle">Múltiplos locais separados por vírgula</div></div></div>
+      <canvas id="chartLocal"></canvas>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div><div class="card-title">Top Cidades</div><div class="card-subtitle">Clique para filtrar</div></div><button class="btn-ver-todas" onclick="abrirModalCid()">Ver todas ↗</button>
+        <span class="card-tag interactive">🖱 Clicável</span>
+      </div>
+      <canvas id="chartCidade" class="clickable-chart"></canvas>
+    </div>
+  </div>
+
+  <!-- Completude + Seguidores (interativo) -->
+  <div class="g2">
+    <div class="card">
+      <div class="card-header"><div><div class="card-title">Completude de Dados de Contato</div><div class="card-subtitle">% de registros preenchidos</div></div></div>
+      <div id="completudeContainer" style="margin-top:6px"></div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div><div class="card-title">Distribuição de Seguidores</div><div class="card-subtitle">Clique em uma faixa para filtrar</div></div>
+        <span class="card-tag interactive">🖱 Clicável</span>
+      </div>
+      <canvas id="chartFaixaSeg" class="clickable-chart"></canvas>
+    </div>
+  </div>
+
+  <!-- Tabela -->
+  <div class="card" style="margin-bottom:0">
+    <div class="card-header">
+      <div><div class="card-title">Amostra — Top por Seguidores</div><div class="card-subtitle" id="tabelaSubtitle">Demonstração</div></div>
+      <span class="card-tag">Top 15</span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>CRM</th><th>Nome</th><th>UF</th><th>Cidade</th><th>Especialidade</th><th>Segmentação</th><th>Seguidores</th><th>Pac./dia</th><th>Consulta</th><th>Local</th></tr></thead>
+        <tbody id="tabelaBody"></tbody>
+      </table>
+    </div>
+  </div>
+</main>
+
+
+
+<!-- Modal especialidades -->
+<div class="modal-overlay" id="modalEsp" onclick="if(event.target===this)fecharModal('modalEsp')">
+  <div class="modal-box">
+    <div class="modal-header">
+      <span class="modal-title" id="modalEspTitulo">Todas as Especialidades</span>
+      <button class="modal-close" onclick="fecharModal('modalEsp')">×</button>
+    </div>
+    <div class="modal-list" id="modalEspLista"></div>
+  </div>
+</div>
+<!-- Modal cidades -->
+<div class="modal-overlay" id="modalCid" onclick="if(event.target===this)fecharModal('modalCid')">
+  <div class="modal-box">
+    <div class="modal-header">
+      <span class="modal-title" id="modalCidTitulo">Todas as Cidades</span>
+      <button class="modal-close" onclick="fecharModal('modalCid')">×</button>
+    </div>
+    <div class="modal-list" id="modalCidLista"></div>
+  </div>
+</div>
+
+</div>
+
+<script>
+let currentUser = null;
+
+function showLoading(msg){ document.getElementById('loadingScreen').style.display='flex'; document.getElementById('loadingMsg').textContent=msg||'Carregando...'; }
+function hideLoading(){ document.getElementById('loadingScreen').style.display='none'; }
+function showStatus(id,type,msg,ms=0){ const el=document.getElementById(id); el.className='admin-status '+type; el.textContent=msg; el.style.display='block'; if(ms)setTimeout(()=>el.style.display='none',ms); }
+
+async function login(){
+  const email=document.getElementById('authEmail').value.trim();
+  const senha=document.getElementById('authPassword').value;
+  const err=document.getElementById('authError');
+  const btn=document.getElementById('authBtn');
+  err.style.display='none';
+  if(!email||!senha){ err.textContent='Preencha email e senha.'; err.style.display='block'; return; }
+  btn.disabled=true; btn.textContent='Entrando...';
+  const r=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,password:senha})});
+  const data=await r.json();
+  if(!r.ok){ err.textContent=data.error||'Email ou senha incorretos.'; err.style.display='block'; btn.disabled=false; btn.textContent='Entrar'; return; }
+  currentUser=data;
+  document.getElementById('authScreen').style.display='none';
+  if(data.role==='admin') mostrarAdmin(); else await carregarDashboard();
+}
+
+async function logout(){ await fetch('/api/logout',{method:'POST'}); location.reload(); }
+
+function mostrarAdmin(){
+  document.getElementById('adminPanel').style.display='block';
+  document.getElementById('dashApp').style.display='none';
+  document.getElementById('adminEmail').textContent=currentUser?.email||'';
+  document.getElementById('linkInput').value=location.origin;
+  carregarDatasetInfo(); adminTab('dados');
+}
+
+function adminTab(tab){
+  ['dados','usuarios','acesso'].forEach(t=>{
+    document.getElementById('tab'+t[0].toUpperCase()+t.slice(1)).style.display=t===tab?'block':'none';
+    document.getElementById('nav'+t[0].toUpperCase()+t.slice(1)).classList.toggle('active',t===tab);
+  });
+  if(tab==='usuarios') carregarUsuarios();
+}
+
+async function carregarDatasetInfo(){
+  const r=await fetch('/api/dataset'); const d=await r.json();
+  const el=document.getElementById('datasetInfo');
+  if(d&&d.length){
+    const dt=new Date(d[0].created_at).toLocaleString('pt-BR');
+    el.innerHTML=`<div class="dataset-card"><div><h3>📊 ${d[0].nome}</h3><p>${(d[0].total_registros||0).toLocaleString('pt-BR')} registros · ${dt}</p></div><button class="admin-btn admin-btn-danger" onclick="excluirDataset()">🗑 Remover</button></div>`;
+  } else { el.innerHTML='<p>Nenhum dataset. Faça upload abaixo.</p>'; }
+}
+
+async function processFile(file){
+  if(!file) return;
+  document.getElementById('progressWrap').style.display='block';
+  const setP=(pct,txt)=>{ document.getElementById('progressFill').style.width=pct+'%'; document.getElementById('progressPct').textContent=pct+'%'; document.getElementById('progressText').textContent=txt; };
+  setP(5,'Lendo arquivo...'); document.getElementById('uploadMsg').textContent='⏳ Lendo...';
+  const reader=new FileReader();
+  reader.onload=async(e)=>{
+    let rows=[];
+    if(file.name.toLowerCase().endsWith('.csv')){
+      const txt=e.target.result; const sep=txt.includes(';')?';':',';
+      const lines=txt.split('\n').filter(l=>l.trim());
+      const hdrs=lines[0].split(sep).map(h=>h.trim().replace(/^"|"$/g,''));
+      for(let i=1;i<lines.length;i++){const v=lines[i].split(sep).map(x=>x.trim().replace(/^"|"$/g,''));const o={};hdrs.forEach((h,j)=>o[h]=v[j]||'');if(Object.values(o).some(x=>x))rows.push(o);}
+    } else {
+      const wb=XLSX.read(e.target.result,{type:'array'});
+      rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:''});
+    }
+    setP(25,'Processando '+rows.length+' registros...');
+    const nk=s=>s.toLowerCase().replace(/[^a-z0-9]/g,'');
+    const hdrs=Object.keys(rows[0]||{}); const hn=hdrs.map(nk);
+    const fc=ts=>{ for(const t of ts){const i=hn.indexOf(nk(t));if(i>=0)return hdrs[i];} return null; };
+    const CM={uf:['ufmatricula','uf'],crm:['matricula','crm'],nome:['medico','nutricionista','nome','profissional'],segInflu:['cat_dol','catdol','segmentacaoinfluencia'],segPresc:['cat_produtividade','catprodutividade','segmentacaoprescricao'],nseg:['nseguidores','seguidores'],consulta:['valorconsulta','consulta'],local:['localatendimento','local'],pacientes:['npacientes','pacientes'],esp1:['especialidade1','especialidade'],esp2:['especialidade2'],catEsp:['categoria_especialidade','categoriaespecialidade'],cidade:['cidade','municipio']};
+    const c={};for(const[f,t] of Object.entries(CM))c[f]=fc(t);
+    const dM={'DOL > 10k':'DOL >10k','DOL > 30k':'DOL >30k','DOL > 50k':'DOL >50k','DOL > 100k':'DOL >100k','DOL >10k':'DOL >10k','DOL >30k':'DOL >30k','DOL >50k':'DOL >50k','DOL >100k':'DOL >100k'};
+    const cM={'1':'CAT1','2':'CAT2','3':'CAT3','4':'CAT4'};
+    const processed=rows.map((row,i)=>{
+      const get=f=>c[f]?String(row[c[f]]||''):'';
+      const num=f=>{const n=parseFloat(get(f).replace(/[^0-9.,-]/g,'').replace(',','.'));return isNaN(n)?0:n;};
+      return {crm:get('crm')||String(i+1),nome:get('nome')||'Registro '+(i+1),uf:get('uf').toUpperCase().substring(0,2)||null,cidade:get('cidade')||null,seg:'',seg_influ:dM[get('segInflu').trim()]||get('segInflu').trim(),seg_presc:cM[get('segPresc').trim()]||get('segPresc').trim(),nseg:num('nseg'),consulta:num('consulta'),local:get('local')||'',pacientes:num('pacientes'),esp1:get('esp1')||null,esp2:get('esp2')||null,cat_esp:get('catEsp')||null,tipo:'medico'};
+    }).filter(r=>r.nome&&r.nome!=='Registro '+(rows.indexOf(rows.find(x=>!x))+1));
+    setP(60,'Enviando para o servidor...');
+    const resp=await fetch('/api/upload',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({rows:processed,nome:file.name})});
+    const result=await resp.json();
+    if(!resp.ok){showStatus('uploadStatus','err','❌ '+result.error);setP(0,'Erro');return;}
+    setP(100,'Concluído!');
+    document.getElementById('uploadMsg').textContent='✅ '+processed.length.toLocaleString('pt-BR')+' registros salvos!';
+    document.getElementById('uploadArea').classList.add('done');
+    showStatus('uploadStatus','ok','✅ '+processed.length.toLocaleString('pt-BR')+' registros carregados! Todos os usuários já veem os dados atualizados.');
+    carregarDatasetInfo();
+  };
+  if(file.name.toLowerCase().endsWith('.csv')) reader.readAsText(file,'utf-8'); else reader.readAsArrayBuffer(file);
+}
+
+async function excluirDataset(){
+  if(!confirm('Remover todos os dados?')) return;
+  await fetch('/api/delete-dataset',{method:'POST'}); carregarDatasetInfo();
+}
+
+async function carregarUsuarios(){
+  const r=await fetch('/api/users'); const data=await r.json();
+  const el=document.getElementById('listaUsuarios');
+  if(!Array.isArray(data)||!data.length){el.innerHTML='<p style="color:#7A6FA0;font-size:13px;">Nenhum usuário.</p>';return;}
+  el.innerHTML=`<table class="admin-table"><thead><tr><th>Nome</th><th>Email</th><th>Perfil</th><th>Criado em</th><th></th></tr></thead><tbody>${data.map(u=>`<tr><td><strong>${u.full_name||'—'}</strong></td><td style="color:#7A6FA0">${u.email||'—'}</td><td><span class="admin-tag ${u.role==='admin'?'admin-tag-admin':'admin-tag-user'}">${u.role==='admin'?'Admin':'Visualizador'}</span></td><td style="color:#7A6FA0;font-size:11px">${new Date(u.created_at).toLocaleDateString('pt-BR')}</td><td><button class="admin-btn admin-btn-danger" style="padding:5px 10px;font-size:10px" onclick="excluirUsuario('${u.id}','${u.email}')">Remover</button></td></tr>`).join('')}</tbody></table>`;
+}
+
+async function criarUsuario(){
+  const nome=document.getElementById('novoNome').value.trim();
+  const email=document.getElementById('novoEmail').value.trim();
+  const senha=document.getElementById('novaSenha').value;
+  const perfil=document.getElementById('novoPerfil').value;
+  if(!nome||!email||!senha){showStatus('userStatus','err','Preencha todos os campos.');return;}
+  if(senha.length<8){showStatus('userStatus','err','Senha mínima 8 caracteres.');return;}
+  const r=await fetch('/api/users',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({full_name:nome,email,password:senha,role:perfil})});
+  const data=await r.json();
+  if(!r.ok){showStatus('userStatus','err','❌ '+data.error);return;}
+  showStatus('userStatus','ok','✅ Usuário criado!',4000);
+  document.getElementById('novoNome').value=''; document.getElementById('novoEmail').value=''; document.getElementById('novaSenha').value='';
+  carregarUsuarios();
+}
+
+async function excluirUsuario(id,email){
+  if(!confirm('Remover '+email+'?')) return;
+  await fetch('/api/users/'+id,{method:'DELETE'}); carregarUsuarios();
+}
+
+function copiarLink(){ navigator.clipboard.writeText(location.origin).then(()=>showStatus('linkStatus','ok','✅ Link copiado!',2000)); }
+
+async function carregarDashboard(){
+  showLoading('Carregando dados...');
+  document.getElementById('adminPanel').style.display='none';
+  document.getElementById('dashApp').style.display='block';
+  if(currentUser?.role==='admin'){ document.getElementById('adminBar').style.display='flex'; document.getElementById('userBar').style.display='none'; }
+  else { document.getElementById('adminBar').style.display='none'; document.getElementById('userBar').style.display='flex'; document.getElementById('userBarName').textContent=(currentUser?.full_name||currentUser?.email||'')+' · HCP Intelligence'; }
+  try{
+    const r=await fetch('/api/hcps');
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    const hcps=await r.json();
+    if(Array.isArray(hcps)&&hcps.length){
+      const med=hcps.filter(d=>d.tipo==='medico'||!d.tipo).map(mapHcp);
+      const nut=hcps.filter(d=>d.tipo==='nutri').map(mapHcp);
+      if(med.length){dados['medico']=med;dadosReais['medico']=true;}
+      if(nut.length){dados['nutri']=nut;dadosReais['nutri']=true;}
+      document.querySelector('.b-demo').style.display='none';
+      if(med.length) document.querySelector('.b-med').style.display='inline-block';
+      if(nut.length) document.querySelector('.b-nut').style.display='inline-block';
+    }
+  }catch(e){console.error('Erro dados:',e);}
+  hideLoading(); popularFiltros(BASE()); aplicarFiltros();
+}
+
+function mapHcp(d){ return {crm:d.crm,nome:d.nome,uf:d.uf,cidade:d.cidade,seg:d.seg||'',segInflu:d.seg_influ||'',segPresc:d.seg_presc||'',nseg:d.nseg||0,consulta:d.consulta||0,local:d.local||'',pacientes:d.pacientes||0,esp1:d.esp1,esp2:d.esp2,catEsp:d.cat_esp}; }
+
+function irDashboard(){ carregarDashboard(); }
+
+(async()=>{
+  const r=await fetch('/api/me');
+  if(r.ok){
+    currentUser=await r.json();
+    document.getElementById('authScreen').style.display='none';
+    if(currentUser.role==='admin') mostrarAdmin(); else await carregarDashboard();
+  }
+  // não autenticado: mostra tela de login (visível por padrão)
+})();
+</script>
+
+<script>
+
+// ===================== CONFIG SEGMENTAÇÕES =====================
+const CFG_INFLU=[
+  {key:'DOL >10k',label:'DOL >10k',sub:'>10k seg.',cor:'#0891B2',cls:'dol10k'},
+  {key:'DOL >30k',label:'DOL >30k',sub:'>30k seg.',cor:'#9333EA',cls:'dol30k'},
+  {key:'DOL >50k',label:'DOL >50k',sub:'>50k seg.',cor:'#BE185D',cls:'dol50k'},
+  {key:'DOL >100k',label:'DOL >100k',sub:'>100k seg.',cor:'#DC2626',cls:'dol100k'},
+];
+const CFG_PRESC=[
+  {key:'CAT1',label:'CAT1',sub:'Alta produt.',cor:'#F47920',cls:'cat1'},
+  {key:'CAT2',label:'CAT2',sub:'Méd. produt.',cor:'#0284C7',cls:'cat2'},
+  {key:'CAT3',label:'CAT3',sub:'Base produt.',cor:'#16A34A',cls:'cat3'},
+  {key:'CAT4',label:'CAT4',sub:'Mín. produt.',cor:'#6B7280',cls:'cat4'},
+];
+const CFG_MED=CFG_INFLU; // médicos usam mesma segmentação DOL + CAT1-4
+
+// ===================== PALETA =====================
+const CP='#4B2D8F',CP2='#6A42C2',CO='#F47920',CO2='#E05A00',CG='#16A34A',CB='#0284C7';
+const PAL=[CP,CO,CP2,CO2,CG,CB,'#9333EA','#CA8A04','#0891B2','#BE185D'];
+
+// ===================== DEMO DATA =====================
+const nomesD=["Ana Paula Ferreira","Carlos Eduardo Lima","Márcia Rodrigues","João Batista Costa","Priscila Mendes","Rafael Souza","Beatriz Cavalcante","Thiago Andrade","Fernanda Gomes","Leonardo Martins","Juliana Alves","Pedro Nunes","Camila Borges","André Teixeira","Isabela Rocha","Guilherme Farias","Vanessa Carvalho","Marcelo Pinto","Renata Vieira","Bruno Cardoso"];
+const ufsD=["SP","SP","SP","RJ","RJ","MG","MG","RS","PR","BA","SC","PE","CE","GO","DF"];
+const cidMap={"SP":["São Paulo","Campinas","Santos","Ribeirão Preto","Guarulhos"],"RJ":["Rio de Janeiro","Niterói","Petrópolis","Nova Iguaçu"],"MG":["Belo Horizonte","Uberlândia","Juiz de Fora"],"RS":["Porto Alegre","Caxias do Sul","Pelotas"],"PR":["Curitiba","Londrina","Maringá"],"BA":["Salvador","Feira de Santana"],"SC":["Florianópolis","Joinville"],"PE":["Recife","Caruaru"],"CE":["Fortaleza","Caucaia"],"GO":["Goiânia","Aparecida de Goiânia"],"DF":["Brasília","Taguatinga"]};
+const espsD_med=["Cardiologia","Endocrinologia","Clínica Geral","Neurologia","Ortopedia","Oncologia","Pediatria","Psiquiatria","Dermatologia","Ginecologia","Reumatologia","Nefrologia"];
+const espsD_nut=["Nutrição Clínica","Nutrição Esportiva","Nutrição Pediátrica","Nutrição Oncológica","Nutrição Funcional","Nutrição Metabólica","Nutrição Geriátrica","Nutrição Materno-Infantil"];
+const locaisComboD=["Clínica","Consultório","Hospital","Ambulatório","Teleconsulta","Clínica, Teleconsulta","Hospital, Ambulatório","Consultório, Home Care","Clínica, Hospital","Teleconsulta"];
+const segsD=[]; // não usado mais
+const segsInfluD=["DOL >10k","DOL >30k","DOL >50k","DOL >100k","","",""];
+const segsPrescD=["CAT1","CAT2","CAT3","CAT1","CAT4","CAT2","CAT3","",""];
+
+let seed=42;
+function sr(a,b){seed=(seed*1664525+1013904223)>>>0;return a+(seed%(b-a+1));}
+function sc(arr){return arr[sr(0,arr.length-1)];}
+
+function gerarDemo(esps,isNutri){
+  seed=isNutri?99:42;
+  return Array.from({length:400},(_,i)=>{
+    const seg='';
+    const segInflu=sc(segsInfluD);
+    const segPresc=sc(segsPrescD);
+    const nseg=segInflu==='DOL >100k'?sr(100001,500000):segInflu==='DOL >50k'?sr(50001,100000):segInflu==='DOL >30k'?sr(30001,50000):segInflu==='DOL >10k'?sr(10001,30000):sr(50,9999);
+    const uf=sc(ufsD);const cids=cidMap[uf]||["Cidade"];
+    return {
+      crm:`${sr(10000,99999)}`,uf,cidade:sc(cids),nome:nomesD[i%nomesD.length]+" "+(i+1),
+      seg,segInflu,segPresc,nseg,consulta:sr(100,1200),local:sc(locaisComboD),pacientes:sr(5,40),
+      esp1:sc(esps),esp2:sc(esps),catEsp:null,
+      temTel:sr(0,9)>2,temCell:sr(0,9)>3,temEmail:sr(0,9)>1,temEnd:sr(0,9)>4,temInsta:sr(0,9)>5
+    };
+  });
+}
+
+// ===================== ESTADO =====================
+let profAtual='medico';
+let dados={
+  medico: gerarDemo(espsD_med,false),
+  nutri:  gerarDemo(espsD_nut,true),
+};
+let dadosReais={medico:false,nutri:false};
+let filtrados=[];
+// filtros interativos
+let fi={esp:[],catEsp:[],seg:[],segPresc:[],uf:[],cidade:[],faixaSeg:null};
+let espMode='esp'; // 'esp' | 'cat'
+let viewMode='abs'; // 'abs' | 'pct'
+function resetFi(){fi={esp:[],catEsp:[],seg:[],segPresc:[],uf:[],cidade:[],faixaSeg:null};}
+
+function BASE(){return dados[profAtual];}
+
+// ===================== PROFISSÃO =====================
+function setProfissao(p){
+  profAtual=p;
+  document.getElementById('titleProf').textContent=p==='medico'?'HCP':'Nutri';
+  document.querySelectorAll('.prof-btn').forEach(b=>b.classList.toggle('active',
+    (b.textContent.trim()==='Médico'&&p==='medico')||(b.textContent.trim()==='Nutricionista'&&p==='nutri')
+  ));
+  document.getElementById('kpiTotalLabel').textContent=p==='medico'?'Total de Médicos':'Total de Nutris';
+  document.getElementById('kpiTotalSub').textContent=p==='medico'?'na base de médicos':'na base de nutris';
+  const isNut=p==='nutri';
+  document.getElementById('filtroSeg').style.display='none';
+  document.getElementById('filtroSegInflu').style.display='';
+  document.getElementById('filtroSegPresc').style.display='';
+  const spEl=document.getElementById('filtroSegPresc');if(spEl)spEl.options[0].text='Produtividade — Todas';
+  document.getElementById('segPrescRow').style.display='block';
+  document.getElementById('segTitulo').textContent='Seg. por Influência DOL';
+  atualizarBadges();
+  resetFi();
+  document.querySelectorAll('.seg-card').forEach(c=>c.classList.remove('active-seg'));
+  reconstruirSegCards();
+  popularFiltros(BASE());
+  aplicarFiltros();
+}
+
+function atualizarBadges(){
+  document.getElementById('badgeDemo').style.display=(!dadosReais.medico&&!dadosReais.nutri)?'inline':'none';
+  document.getElementById('badgeMed').style.display=dadosReais.medico?'inline':'none';
+  document.getElementById('badgeNut').style.display=dadosReais.nutri?'inline':'none';
+}
+
+// ===================== UPLOAD =====================
+function setupDrop(dropId,inputId,tipo){
+  const drop=document.getElementById(dropId);
+  const inp=document.getElementById(inputId);
+  drop.addEventListener('dragover',e=>{e.preventDefault();drop.classList.add('dragover');});
+  drop.addEventListener('dragleave',()=>drop.classList.remove('dragover'));
+  drop.addEventListener('drop',e=>{e.preventDefault();drop.classList.remove('dragover');if(e.dataTransfer.files[0])processFile(e.dataTransfer.files[0],tipo);});
+  inp.addEventListener('change',e=>{if(e.target.files[0])processFile(e.target.files[0],tipo);});
+}
+setupDrop('dropMed','fileMed','medico');
+setupDrop('dropNut','fileNut','nutri');
+
+function nk(k){return(k||"").toLowerCase().replace(/[^a-z0-9]/g,"");}
+const CMAP={
+  uf:["ufmatricula","uf"],crm:["matricula","crm"],
+  nome:["medico","nutricionista","nome","profissional"],
+  sexo:["sexo"],seg:["segmentacao","segmentação","seg"],
+  segInflu:["cat_dol","catdol","segmentacaoinfluencia","seginfluencia","seginflu"],
+  segPresc:["cat_produtividade","catprodutividade","segmentacaoprescricao","segprescricao","segpresc"],
+  catDol:["cat_dol","catdol","segdol"],
+  nseg:["nseguidores","seguidores","followers"],
+  consulta:["valorconsulta","consulta"],local:["localatendimento","local"],
+  pacientes:["npacientes","pacientes"],plano:["atendeplanodesaude","plano"],
+  esp1:["especialidade1","especialidade"],esp2:["especialidade2"],
+  catEsp:["categoria_especialidade","categoriaespecialidade","catesp"],
+  temTel:["telefone1","telefone"],temCell:["celular1","celular"],
+  temEmail:["email1","email"],temEnd:["endereco","endereço"],
+  temInsta:["enderecoredesocial","instagram"],
+  cidade:["cidade","municipio","município"]
+};
+function findCol(hdrs,targets){
+  const hn=hdrs.map(nk);
+  for(const t of targets){const i=hn.indexOf(nk(t));if(i>=0)return hdrs[i];}
+  return null;
+}
+
+function processFile(file,tipo){
+  const isCSV=file.name.toLowerCase().endsWith('.csv');
+  const reader=new FileReader();
+  reader.onload=e=>{
+    let rows=[];
+    if(isCSV){
+      const lines=e.target.result.split('\n').filter(l=>l.trim());
+      const sep=lines[0].includes(';')?';':',';
+      const hdrs=lines[0].split(sep).map(h=>h.trim().replace(/^"|"$/g,''));
+      for(let i=1;i<lines.length;i++){
+        const vals=lines[i].split(sep).map(v=>v.trim().replace(/^"|"$/g,''));
+        const obj={};hdrs.forEach((h,j)=>obj[h]=vals[j]||"");rows.push(obj);
+      }
+    } else {
+      const wb=XLSX.read(e.target.result,{type:'array'});
+      rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:""});
+    }
+    if(!rows.length){alert("Arquivo vazio ou não reconhecido.");return;}
+    const hdrs=Object.keys(rows[0]);
+    const c={};for(const[f,t]of Object.entries(CMAP))c[f]=findCol(hdrs,t);
+
+    // chips
+    document.getElementById('colChips').innerHTML=
+      Object.entries(c).filter(([,v])=>v).map(([k,v])=>`<span class="col-chip ok">✓ ${v}</span>`).join('')+
+      Object.entries(c).filter(([,v])=>!v).map(([k])=>`<span class="col-chip miss">? ${k}</span>`).join('');
+
+    dados[tipo]=rows.map((row,i)=>{
+      const get=f=>c[f]?(row[c[f]]||""):"";
+      const num=f=>{const v=get(f);const n=parseFloat(String(v).replace(/[^0-9.,-]/g,'').replace(',','.'));return isNaN(n)?0:n;};
+      const bool=f=>{const v=String(get(f)).toLowerCase();return["sim","s","yes","1","true"].includes(v);};
+      const segRaw=String(get('seg')).toUpperCase().trim();
+      const segInfluRaw=String(get('segInflu')).trim();
+      const segPrescRaw=String(get('segPresc')).trim();
+      const seg=''; // segmentação unificada em segInflu/segPresc
+      // Normalizar Cat_DOL do Excel para labels internos
+      const dolMap={'DOL > 10k':'DOL >10k','DOL > 30k':'DOL >30k','DOL > 50k':'DOL >50k','DOL > 100k':'DOL >100k',
+                    'DOL >10k':'DOL >10k','DOL >30k':'DOL >30k','DOL >50k':'DOL >50k','DOL >100k':'DOL >100k'};
+      const segInfluNorm=dolMap[segInfluRaw]||segInfluRaw;
+      const segInflu=segInfluNorm||segRaw||"";
+      // Normalizar Cat_Produtividade do Excel para CAT1/2/3/4
+      const catMap={'1':'CAT1','2':'CAT2','3':'CAT3','4':'CAT4','cat1':'CAT1','cat2':'CAT2','cat3':'CAT3','cat4':'CAT4'};
+      const segPrescNorm=catMap[String(segPrescRaw).toLowerCase().trim()]||segPrescRaw;
+      const segPresc=segPrescNorm||"";
+      const ufRaw=String(get('uf')).toUpperCase().trim().substring(0,2);
+      const cidRaw=String(get('cidade')).trim();
+      return {
+        crm:get('crm')||String(i+1),
+        uf:ufRaw||null,           // null = vazio, não mostrar
+        cidade:cidRaw||null,      // null = vazio
+        nome:get('nome')||`Registro ${i+1}`,
+        seg,segInflu,segPresc,nseg:num('nseg'),consulta:num('consulta'),local:get('local')||'',
+        pacientes:num('pacientes'),plano:bool('plano')?'Sim':"",
+        esp1:get('esp1')||null,esp2:get('esp2')||null,catEsp:get('catEsp')||null,
+        temTel:!!get('temTel'),temCell:!!get('temCell'),temEmail:!!get('temEmail'),
+        temEnd:!!get('temEnd'),temInsta:!!get('temInsta')
+      };
+    });
+
+    dadosReais[tipo]=true;
+    // label do botão de upload
+    const labelId=tipo==='medico'?'medLabel':'nutLabel';
+    const dropId=tipo==='medico'?'dropMed':'dropNut';
+    document.getElementById(labelId).textContent=`✓ ${file.name}`;
+    document.getElementById(dropId).classList.add('loaded');
+
+    atualizarBadges();
+    if(profAtual===tipo){
+      resetFi();
+      document.querySelectorAll('.seg-card').forEach(c=>c.classList.remove('active-seg'));
+      reconstruirSegCards();
+      popularFiltros(dados[tipo]);
+      aplicarFiltros();
+    }
+  };
+  isCSV?reader.readAsText(file,'UTF-8'):reader.readAsArrayBuffer(file);
+}
+
+// ===================== FILTROS =====================
+function popularFiltros(base){
+  // UF: só valores não-nulos/não-vazios
+  const ufs=[...new Set(base.map(d=>d.uf).filter(v=>v&&v!=='??'&&v.length===2))].sort();
+  const cidades=[...new Set(base.map(d=>d.cidade).filter(Boolean))].sort();
+  const locSet=new Set();base.forEach(d=>(d.local||"").split(',').map(l=>l.trim()).filter(Boolean).forEach(l=>locSet.add(l)));
+  const locais=[...locSet].sort();
+  const espSet=new Set();base.forEach(d=>{if(d.esp1)espSet.add(d.esp1);if(d.esp2)espSet.add(d.esp2);});
+  const esps=[...espSet].sort();
+
+  const sel=(id,arr,all)=>document.getElementById(id).innerHTML=`<option value="">${all}</option>`+arr.map(v=>`<option>${v}</option>`).join('');
+  sel('filtroUF',ufs,'Todas as UFs');
+  sel('filtroLocal',locais,'Todos os Locais');
+  sel('filtroEsp',esps,'Todas as Especialidades');
+  sel('filtroCidade',cidades,'Todas as Cidades');
+}
+
+function aplicarFiltros(){
+  const uf=document.getElementById('filtroUF').value;
+  const seg=document.getElementById('filtroSeg').value;
+  const loc=document.getElementById('filtroLocal').value;
+  const esp=document.getElementById('filtroEsp').value;
+  const cidade=document.getElementById('filtroCidade').value;
+
+  let f=BASE();
+  // filtros dropdown
+  if(uf)f=f.filter(d=>d.uf===uf);
+  if(loc)f=f.filter(d=>(d.local||"").split(',').map(s=>s.trim()).includes(loc));
+  if(esp)f=f.filter(d=>d.esp1===esp||d.esp2===esp);
+  if(cidade)f=f.filter(d=>d.cidade===cidade);
+  // filtros dropdown nutri
+  if(profAtual==='nutri'){
+    const si=document.getElementById('filtroSegInflu').value;
+    const sp=document.getElementById('filtroSegPresc').value;
+    if(si)f=f.filter(d=>d.segInflu===si);
+    if(sp)f=f.filter(d=>d.segPresc===sp);
+  }
+  // filtros interativos
+  if(fi.esp.length)f=f.filter(d=>fi.esp.includes(d.esp1)||fi.esp.includes(d.esp2));
+  if(fi.catEsp.length)f=f.filter(d=>fi.catEsp.includes(d.catEsp));
+  if(fi.seg.length)f=f.filter(d=>fi.seg.some(k=>d.segInflu===k));
+  if(fi.segPresc.length)f=f.filter(d=>fi.segPresc.some(k=>d.segPresc===k));
+  if(fi.uf.length)f=f.filter(d=>fi.uf.includes(d.uf));
+  if(fi.cidade.length)f=f.filter(d=>fi.cidade.includes(d.cidade));
+  if(fi.faixaSeg){const fx=FAIXAS_SEG[fi.faixaSeg];f=f.filter(d=>d.nseg>=fx.min&&d.nseg<=fx.max);}
+
+  filtrados=f;
+  atualizarBanner();
+  renderAll();
+}
+
+function atualizarBanner(){
+  const parts=[];
+  if(fi.esp.length)parts.push('Esp.: '+fi.esp.join(', '));
+  if(fi.seg.length)parts.push('Seg.: '+fi.seg.map(k=>k.startsWith('SEM')?'Sem':k).join(', '));
+  if(fi.segPresc.length)parts.push('Produtividade: '+fi.segPresc.join(', '));
+  if(fi.uf.length)parts.push('UF: '+fi.uf.join(', '));
+  if(fi.cidade.length)parts.push('Cidade: '+fi.cidade.join(', '));
+  if(fi.faixaSeg!=null)parts.push('Seguidores: '+FAIXAS_SEG[fi.faixaSeg].l);
+  const banner=document.getElementById('activeFilterBanner');
+  if(parts.length){
+    banner.classList.add('vis');
+    document.getElementById('activeFilterText').textContent=`🔍 ${parts.join(' · ')} — ${filtrados.length.toLocaleString('pt-BR')} resultado${filtrados.length!==1?'s':''}`;
+  } else {
+    banner.classList.remove('vis');
+  }
+}
+
+function limparFiltrosInterativos(){
+  resetFi();
+  document.querySelectorAll('.seg-card').forEach(c=>c.classList.remove('active-seg'));
+  aplicarFiltros();
+}
+
+function resetarTodosFiltros(){
+  ['filtroUF','filtroSeg','filtroSegInflu','filtroSegPresc','filtroLocal','filtroEsp','filtroCidade'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  limparFiltrosInterativos();
+}
+
+// ===================== INTERATIVOS =====================
+function reconstruirSegCards(){
+  const cfg=profAtual==='nutri'?CFG_INFLU:CFG_MED;
+  document.getElementById('segWrap').innerHTML=cfg.map(s=>
+    `<div class="seg-card" id="sc_${s.key.replace(/ /g,'_')}" onclick="toggleSegInflu('${s.key}')">
+      <div class="seg-label">${s.label}</div>
+      <div class="seg-value ${s.cls}" id="sv_${s.key.replace(/ /g,'_')}">—</div>
+      <div class="seg-sub">${s.sub}</div>
+    </div>`
+  ).join('');
+  document.getElementById('segWrapPresc').innerHTML=CFG_PRESC.map(s=>
+    `<div class="seg-card" id="scp_${s.key.replace(/ /g,'_')}" onclick="toggleSegPresc('${s.key}')">
+      <div class="seg-label">${s.label}</div>
+      <div class="seg-value ${s.cls}" id="svp_${s.key.replace(/ /g,'_')}">—</div>
+      <div class="seg-sub">${s.sub}</div>
+    </div>`
+  ).join('');
+}
+function toggleSegInflu(key){
+  const i=fi.seg.indexOf(key);if(i>=0)fi.seg.splice(i,1);else fi.seg.push(key);
+  document.querySelectorAll('[id^="sc_"]').forEach(el=>{const k=el.id.replace('sc_','').replace(/_/g,' ');el.classList.toggle('active-seg',fi.seg.includes(k));});
+  aplicarFiltros();
+}
+function toggleSegPresc(key){
+  const i=fi.segPresc.indexOf(key);if(i>=0)fi.segPresc.splice(i,1);else fi.segPresc.push(key);
+  document.querySelectorAll('[id^="scp_"]').forEach(el=>{const k=el.id.replace('scp_','').replace(/_/g,' ');el.classList.toggle('active-seg',fi.segPresc.includes(k));});
+  aplicarFiltros();
+}
+
+
+// Filtra BASE() aplicando todos os filtros EXCETO a dimensão indicada
+// Usado pelos gráficos para manter todas as opções visíveis ao filtrar
+function filtrarSemDim(exceto){
+  const uf=document.getElementById('filtroUF').value;
+  const seg=document.getElementById('filtroSeg').value;
+  const loc=document.getElementById('filtroLocal').value;
+  const esp=document.getElementById('filtroEsp').value;
+  const cidade=document.getElementById('filtroCidade').value;
+  let f=BASE();
+  if(exceto!=='uf'&&uf)    f=f.filter(d=>d.uf===uf);
+  if(loc)                   f=f.filter(d=>(d.local||'').split(',').map(s=>s.trim()).includes(loc));
+  if(exceto!=='esp'&&esp)  f=f.filter(d=>d.esp1===esp||d.esp2===esp);
+  if(exceto!=='cidade'&&cidade)f=f.filter(d=>d.cidade===cidade);
+  if(profAtual==='nutri'){
+    const si=document.getElementById('filtroSegInflu').value;
+    const sp=document.getElementById('filtroSegPresc').value;
+    if(si)f=f.filter(d=>d.segInflu===si);
+    if(sp)f=f.filter(d=>d.segPresc===sp);
+  }
+  if(exceto!=='esp'&&fi.esp.length)    f=f.filter(d=>fi.esp.includes(d.esp1)||fi.esp.includes(d.esp2));
+  if(exceto!=='esp'&&fi.catEsp.length)  f=f.filter(d=>fi.catEsp.includes(d.catEsp));
+  if(fi.seg.length)f=f.filter(d=>fi.seg.some(k=>d.segInflu===k));
+  if(fi.segPresc.length)f=f.filter(d=>fi.segPresc.some(k=>d.segPresc===k));
+  if(exceto!=='uf'&&fi.uf.length)      f=f.filter(d=>fi.uf.includes(d.uf));
+  if(exceto!=='cidade'&&fi.cidade.length)f=f.filter(d=>fi.cidade.includes(d.cidade));
+  if(exceto!=='faixa'&&fi.faixaSeg!==null){const fx=FAIXAS_SEG[fi.faixaSeg];f=f.filter(d=>d.nseg>=fx.min&&d.nseg<=fx.max);}
+  return f;
+}
+// ===================== CHARTS =====================
+const charts={};
+function dc(id){
+  if(charts[id]){
+    charts[id].destroy();
+    delete charts[id];
+  }
+  // Also clear any lingering Chart.js instance on the canvas
+  const canvasMap={'ce':'chartEsp','cu':'chartUF','cl':'chartLocal','cc':'chartCidade','cfs':'chartFaixaSeg','cs':'chartSeg','csp':'chartSegPresc'};
+  const canvasId=canvasMap[id];
+  if(canvasId){
+    const existing=Chart.getChart(canvasId);
+    if(existing){existing.destroy();}
+  }
+}
+function fmt(n){return(n||0).toLocaleString('pt-BR');}
+function fmtR(n){return n?'R$ '+n.toLocaleString('pt-BR',{minimumFractionDigits:0}):'—';}
+function avg(arr,fn){return arr.length?Math.round(arr.reduce((a,b)=>a+fn(b),0)/arr.length):0;}
+function pct(n,t){return t?Math.round(n/t*100):0;}
+
+const BO={responsive:true,maintainAspectRatio:true,
+  plugins:{legend:{labels:{color:'#7A6FA0',font:{family:'Open Sans',size:11}}}},
+  scales:{
+    x:{ticks:{color:'#7A6FA0',font:{size:11}},grid:{color:'#E2DCF0'}},
+    y:{ticks:{color:'#7A6FA0',font:{size:11}},grid:{color:'#E2DCF0'}}
+  }
+};
+
+const FAIXAS_SEG=[
+  {l:'0–999',min:0,max:999},{l:'1k–5k',min:1000,max:4999},
+  {l:'5k–10k',min:5000,max:9999},{l:'10k–50k',min:10000,max:49999},
+  {l:'50k–100k',min:50000,max:99999},{l:'>100k',min:100000,max:Infinity}
+];
+
+function renderKPIs(){
+  const n=filtrados.length;
+  document.getElementById('kpiTotal').textContent=fmt(n);
+  document.getElementById('kpiSeg').textContent=fmt(avg(filtrados,d=>d.nseg));
+  document.getElementById('kpiPac').textContent=avg(filtrados,d=>d.pacientes)+'/dia';
+  document.getElementById('kpiTicket').textContent=fmtR(avg(filtrados,d=>d.consulta));
+}
+
+function renderSegCards(){
+  const cfg=profAtual==='nutri'?CFG_INFLU:CFG_MED;
+  const totalInflu=filtrados.length||1;
+  cfg.forEach(s=>{
+    const el=document.getElementById('sv_'+s.key.replace(/ /g,'_'));if(!el)return;
+    const n=filtrados.filter(d=>d.segInflu===s.key).length;
+    el.textContent=viewMode==='pct'?(Math.round(n/totalInflu*1000)/10)+'%':n;
+  });
+  const totalPresc=filtrados.length||1;
+  CFG_PRESC.forEach(s=>{
+    const el=document.getElementById('svp_'+s.key.replace(/ /g,'_'));if(!el)return;
+    const n=filtrados.filter(d=>d.segPresc===s.key).length;
+    el.textContent=viewMode==='pct'?(Math.round(n/totalPresc*1000)/10)+'%':n;
+  });
+}
+
+function renderSegPie(){
+  dc('cs');
+  const cfg=profAtual==='nutri'?CFG_INFLU:CFG_MED;
+  const rawSeg=cfg.map(s=>filtrados.filter(d=>d.segInflu===s.key).length);
+  const totalSeg=rawSeg.reduce((a,b)=>a+b,0);
+  const vals=viewMode==='pct'?rawSeg.map(v=>totalSeg?Math.round(v/totalSeg*1000)/10:0):rawSeg;
+  charts['cs']=new Chart(document.getElementById('chartSeg').getContext('2d'),{
+    type:'doughnut',
+    data:{labels:cfg.map(s=>s.label),datasets:[{data:vals,backgroundColor:cfg.map(s=>s.cor),borderColor:'#fff',borderWidth:3}]},
+    options:{responsive:true,maintainAspectRatio:true,cutout:'62%',plugins:{legend:{position:'right',labels:{color:'#7A6FA0',font:{size:11}}},tooltip:{callbacks:{label:ctx=>viewMode==='pct'?' '+ctx.raw+'% do total':' '+fmt(rawSeg[ctx.dataIndex])+' profissionais'}}}}
+  });
+}
+function renderSegPrescPie(){
+  dc('csp');
+  const el=document.getElementById('chartSegPresc');if(!el)return;
+  const rawPresc=CFG_PRESC.map(s=>filtrados.filter(d=>d.segPresc===s.key).length);
+  const totalPresc=rawPresc.reduce((a,b)=>a+b,0);
+  const vals=viewMode==='pct'?rawPresc.map(v=>totalPresc?Math.round(v/totalPresc*1000)/10:0):rawPresc;
+  charts['csp']=new Chart(el.getContext('2d'),{
+    type:'doughnut',
+    data:{labels:CFG_PRESC.map(s=>s.label),datasets:[{data:vals,backgroundColor:CFG_PRESC.map(s=>s.cor),borderColor:'#fff',borderWidth:3}]},
+    options:{responsive:true,maintainAspectRatio:true,cutout:'55%',plugins:{legend:{position:'right',labels:{color:'#7A6FA0',font:{size:11}}},tooltip:{callbacks:{label:ctx=>viewMode==='pct'?' '+ctx.raw+'% do total':' '+fmt(rawPresc[ctx.dataIndex])+' profissionais'}}}}
+  });
+}
+
+
+function setViewMode(m){
+  viewMode=m;
+  document.getElementById('btnAbs').classList.toggle('active',m==='abs');
+  document.getElementById('btnPct').classList.toggle('active',m==='pct');
+  renderAll();
+}
+function toViewData(vals, total){
+  if(viewMode==='pct'){
+    return vals.map(v=>total?Math.round(v/total*1000)/10:0);
+  }
+  return vals;
+}
+function viewLabel(ctx, raw){
+  if(viewMode==='pct') return ' '+ctx.parsed+'% do total';
+  return ' '+fmt(raw!=null?raw:ctx.parsed)+' profissionais';
+}
+
+function setEspMode(m){
+  espMode=m;
+  fi.esp=[];fi.catEsp=[];
+  document.getElementById('btnEspMode').classList.toggle('active',m==='esp');
+  document.getElementById('btnCatMode').classList.toggle('active',m==='cat');
+  document.getElementById('espCardTitle').textContent=m==='cat'?'Categorias de Especialidade':'Top Especialidades';
+  aplicarFiltros();
+}
+
+function renderEspecialidades(){
+  dc('ce');
+  const base=filtrarSemDim('esp');
+  const cnt={};
+  const isCat=espMode==='cat';
+  if(isCat){
+    base.forEach(d=>{if(d.catEsp)cnt[d.catEsp]=(cnt[d.catEsp]||0)+1;});
+  } else {
+    base.forEach(d=>{if(d.esp1)cnt[d.esp1]=(cnt[d.esp1]||0)+1;if(d.esp2)cnt[d.esp2]=(cnt[d.esp2]||0)+1;});
+  }
+  const s=Object.entries(cnt).sort((a,b)=>b[1]-a[1]).slice(0,isCat?20:10);
+  const activeKeys=isCat?fi.catEsp:fi.esp;
+  const rawVals=s.map(x=>x[1]);
+  const total=rawVals.reduce((a,b)=>a+b,0);
+  const dispVals=toViewData(rawVals,total);
+  const bg=s.map(([l])=>activeKeys.includes(l)?CO:CP2+'88');
+  const bd=s.map(([l])=>activeKeys.includes(l)?CO:CP2);
+  const espMaxLen=s.reduce((m,x)=>Math.max(m,x[0].length),0);
+  const espPadLeft=Math.min(Math.max(espMaxLen*7,120),280);
+  charts['ce']=new Chart(document.getElementById('chartEsp').getContext('2d'),{
+    type:'bar',
+    data:{labels:s.map(x=>x[0]),datasets:[{label:'Profissionais',data:dispVals,backgroundColor:bg,borderColor:bd,borderWidth:2,borderRadius:5,barThickness:isCat?14:10}]},
+    options:{...BO,indexAxis:'y',
+      onClick:(evt,els)=>{
+        if(els.length){
+          const v=s[els[0].index][0];
+          if(isCat){const i=fi.catEsp.indexOf(v);if(i>=0)fi.catEsp.splice(i,1);else fi.catEsp.push(v);}
+          else{const i=fi.esp.indexOf(v);if(i>=0)fi.esp.splice(i,1);else fi.esp.push(v);}
+        }
+        aplicarFiltros();
+      },
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>viewMode==='pct'?' '+ctx.raw+'% do total':' '+fmt(rawVals[ctx.dataIndex])+' profissionais'}}},
+      layout:{padding:{left:0}},
+      scales:{
+        x:{ticks:{color:'#7A6FA0',callback:v=>viewMode==='pct'?v+'%':fmt(v)},grid:{color:'#E2DCF0'}},
+        y:{ticks:{color:'#7A6FA0',font:{size:10},autoSkip:false,crossAlign:'far'},grid:{color:'#E2DCF0'},
+           afterFit(axis){axis.width=espPadLeft;}}
+      }}
+  });
+}
+
+function renderUF(){
+  dc('cu');
+  const base=filtrarSemDim('uf');
+  const cnt={};
+  base.filter(d=>d.uf&&d.uf!=='??'&&d.uf.length===2).forEach(d=>cnt[d.uf]=(cnt[d.uf]||0)+1);
+  const s=Object.entries(cnt).sort((a,b)=>b[1]-a[1]).slice(0,12);
+  const rawVals=s.map(x=>x[1]);
+  const total=rawVals.reduce((a,b)=>a+b,0);
+  const dispVals=toViewData(rawVals,total);
+  const bg=s.map(([l])=>fi.uf.includes(l)?CO:CP+'88');
+  const bd=s.map(([l])=>fi.uf.includes(l)?CO:CP);
+  charts['cu']=new Chart(document.getElementById('chartUF').getContext('2d'),{
+    type:'bar',
+    data:{labels:s.map(x=>x[0]),datasets:[{label:'Profissionais',data:dispVals,backgroundColor:bg,borderColor:bd,borderWidth:2,borderRadius:5}]},
+    options:{...BO,
+      onClick:(evt,els)=>{
+        if(els.length){const v=s[els[0].index][0];const i=fi.uf.indexOf(v);if(i>=0)fi.uf.splice(i,1);else fi.uf.push(v);}
+        aplicarFiltros();
+      },
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>viewMode==='pct'?' '+ctx.raw+'% do total':' '+fmt(rawVals[ctx.dataIndex])+' profissionais'}}},
+      scales:{x:{ticks:{color:'#7A6FA0'},grid:{color:'#E2DCF0'}},y:{ticks:{color:'#7A6FA0',callback:v=>viewMode==='pct'?v+'%':fmt(v)},grid:{color:'#E2DCF0'}}}}
+  });
+}
+
+function renderLocal(){
+  dc('cl');
+  const cnt={};
+  filtrados.forEach(d=>(d.local||"").split(',').map(l=>l.trim()).filter(Boolean).forEach(l=>cnt[l]=(cnt[l]||0)+1));
+  const s=Object.entries(cnt).sort((a,b)=>b[1]-a[1]);
+  if(!s.length)return;
+  charts['cl']=new Chart(document.getElementById('chartLocal').getContext('2d'),{
+    type:'doughnut',
+    data:{labels:s.map(x=>x[0]),datasets:[{data:s.map(x=>x[1]),backgroundColor:PAL.slice(0,s.length),borderColor:'#fff',borderWidth:2}]},
+    options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{position:'right',labels:{color:'#7A6FA0',font:{size:11}}}}}
+  });
+}
+
+function renderCidade(){
+  dc('cc');
+  const base=filtrarSemDim('cidade');
+  const cnt={};
+  base.filter(d=>d.cidade&&d.cidade.trim()).forEach(d=>cnt[d.cidade]=(cnt[d.cidade]||0)+1);
+  const s=Object.entries(cnt).sort((a,b)=>b[1]-a[1]).slice(0,10);
+  if(!s.length)return;
+  const bg=s.map(([l])=>fi.cidade.includes(l)?CO:CB+'88');
+  const bd=s.map(([l])=>fi.cidade.includes(l)?CO:CB);
+  const cidMaxLen=s.reduce((m,x)=>Math.max(m,x[0].length),0);
+  const cidPadLeft=Math.min(Math.max(cidMaxLen*7,120),220);
+  document.getElementById('chartCidade').parentElement.style.height=Math.max(140,s.length*28)+'px';
+
+  const rawValsCid=s.map(x=>x[1]);
+  const totalCid=rawValsCid.reduce((a,b)=>a+b,0);
+  const dispValsCid=toViewData(rawValsCid,totalCid);
+  charts['cc']=new Chart(document.getElementById('chartCidade').getContext('2d'),{
+    type:'bar',
+    data:{labels:s.map(x=>x[0]),datasets:[{label:'Profissionais',data:dispValsCid,backgroundColor:bg,borderColor:bd,borderWidth:2,borderRadius:5,barThickness:10}]},
+    options:{...BO,indexAxis:'y',
+      onClick:(evt,els)=>{
+        if(els.length){const v=s[els[0].index][0];const i=fi.cidade.indexOf(v);if(i>=0)fi.cidade.splice(i,1);else fi.cidade.push(v);}
+        aplicarFiltros();
+      },
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>viewMode==='pct'?' '+ctx.raw+'% do total':' '+fmt(rawValsCid[ctx.dataIndex])+' profissionais'}}},
+      layout:{padding:{left:0}},
+      scales:{
+        x:{ticks:{color:'#7A6FA0',callback:v=>viewMode==='pct'?v+'%':fmt(v)},grid:{color:'#E2DCF0'}},
+        y:{ticks:{color:'#7A6FA0',font:{size:10},maxRotation:0,autoSkip:false,crossAlign:'far'},grid:{color:'#E2DCF0'},
+           afterFit(axis){axis.width=cidPadLeft;}}
+      }}
+  });
+}
+
+function renderCompletude(){
+  const n=filtrados.length||1;
+  const campos=[
+    {nome:'Telefone',v:filtrados.filter(d=>d.temTel).length},
+    {nome:'Celular',v:filtrados.filter(d=>d.temCell).length},
+    {nome:'E-mail',v:filtrados.filter(d=>d.temEmail).length},
+    {nome:'Endereço',v:filtrados.filter(d=>d.temEnd).length},
+    {nome:'Instagram',v:filtrados.filter(d=>d.temInsta).length},
+  ];
+  document.getElementById('completudeContainer').innerHTML=campos.map(c=>{
+    const p=pct(c.v,n);
+    return `<div class="completude-row"><span class="completude-name">${c.nome}</span><div class="completude-bar-bg"><div class="completude-bar" style="width:${p}%"></div></div><span class="completude-pct">${p}%</span></div>`;
+  }).join('');
+}
+
+function renderFaixaSeg(){
+  dc('cfs');
+  const base=filtrarSemDim('faixa');
+  const vals=FAIXAS_SEG.map(f=>base.filter(d=>d.nseg>=f.min&&d.nseg<=f.max).length);
+  const bg=FAIXAS_SEG.map((_,i)=>fi.faixaSeg===i?CO:CO+'55');
+  const bd=FAIXAS_SEG.map((_,i)=>fi.faixaSeg===i?CO:CO);
+  const totalFaixa=vals.reduce((a,b)=>a+b,0);
+  const dispFaixa=toViewData(vals,totalFaixa);
+  charts['cfs']=new Chart(document.getElementById('chartFaixaSeg').getContext('2d'),{
+    type:'bar',
+    data:{labels:FAIXAS_SEG.map(f=>f.l),datasets:[{label:'Profissionais',data:dispFaixa,backgroundColor:bg,borderColor:bd,borderWidth:2,borderRadius:5}]},
+    options:{...BO,
+      onClick:(evt,els)=>{
+        fi.faixaSeg=els.length?(fi.faixaSeg===els[0].index?null:els[0].index):null;
+        aplicarFiltros();
+      },
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>viewMode==='pct'?' '+ctx.raw+'% do total':' '+fmt(vals[ctx.dataIndex])+' profissionais'}}},
+      scales:{x:{ticks:{color:'#7A6FA0'},grid:{color:'#E2DCF0'}},y:{ticks:{color:'#7A6FA0',callback:v=>viewMode==='pct'?v+'%':fmt(v)},grid:{color:'#E2DCF0'}}}}
+  });
+}
+
+function renderTabela(){
+  const top=[...filtrados].sort((a,b)=>b.nseg-a.nseg).slice(0,15);
+  const MAP_I={'DOL >10k':'tag-dol10k','DOL >30k':'tag-dol30k','DOL >50k':'tag-dol50k','DOL >100k':'tag-dol100k'};
+  const MAP_P={'CAT1':'tag-cat1','CAT2':'tag-cat2','CAT3':'tag-cat3','CAT4':'tag-cat4'};
+  const tSeg=d=>`<span class="tag ${MAP_I[d.segInflu]||'tag-sem'}">${d.segInflu||'—'}</span> <span class="tag ${MAP_P[d.segPresc]||'tag-sem'}">${d.segPresc||'—'}</span>`;
+  document.getElementById('tabelaBody').innerHTML=top.map(d=>`
+    <tr>
+      <td style="color:var(--muted);font-size:11px">${d.uf?d.uf+'-':''}${d.crm}</td>
+      <td style="font-weight:600">${d.nome}</td>
+      <td>${d.uf||'—'}</td>
+      <td style="color:var(--muted)">${d.cidade||'—'}</td>
+      <td style="color:var(--muted)">${d.esp1||'—'}</td>
+      <td>${tSeg(d)}</td>
+      <td style="color:var(--primary2);font-weight:700">${fmt(d.nseg)}</td>
+      <td>${d.pacientes||'—'}</td>
+      <td>${fmtR(d.consulta)}</td>
+      <td style="color:var(--muted);font-size:11px">${d.local||'—'}</td>
+    </tr>
+  `).join('');
+  document.getElementById('tabelaSubtitle').textContent=
+    dadosReais[profAtual]?`${filtrados.length.toLocaleString('pt-BR')} registros carregados`:'Demonstração';
+}
+
+function renderAll(){
+  renderKPIs();renderSegCards();renderSegPie();renderSegPrescPie();renderEspecialidades();
+  renderUF();renderLocal();renderCidade();renderCompletude();
+  renderFaixaSeg();renderTabela();
+}
+
+
+// ===================== MODAL VER TODAS =====================
+function fecharModal(id){document.getElementById(id).classList.remove('vis');}
+
+function abrirModalEsp(){
+  const cnt={};
+  const isCat=espMode==='cat';
+  if(isCat){filtrados.forEach(d=>{if(d.catEsp)cnt[d.catEsp]=(cnt[d.catEsp]||0)+1;});}
+  else{filtrados.forEach(d=>{if(d.esp1)cnt[d.esp1]=(cnt[d.esp1]||0)+1;if(d.esp2)cnt[d.esp2]=(cnt[d.esp2]||0)+1;});}
+  const s=Object.entries(cnt).sort((a,b)=>b[1]-a[1]);
+  const max=s[0]?s[0][1]:1;
+  document.getElementById('modalEspTitulo').textContent=(espMode==='cat'?'Categorias':'Especialidades')+' ('+s.length+' no total)';
+  document.getElementById('modalEspLista').innerHTML=s.map(([nome,n])=>{
+    const ativo=fi.esp.includes(nome);
+    const pct=Math.round(n/max*100);
+    return `<div class="modal-item${ativo?' active':''}" onclick="toggleModalFiltro('esp','${nome.replace(/'/g,"\\'")}')">
+      <span class="modal-item-name">${nome}</span>
+      <div class="modal-item-bar"><div class="modal-item-fill${ativo?' active':''}" style="width:${pct}%"></div></div>
+      <span class="modal-item-count">${fmt(n)}</span>
+    </div>`;
+  }).join('');
+  document.getElementById('modalEsp').classList.add('vis');
+}
+
+function abrirModalCid(){
+  const cnt={};
+  filtrados.filter(d=>d.cidade&&d.cidade.trim()).forEach(d=>cnt[d.cidade]=(cnt[d.cidade]||0)+1);
+  const s=Object.entries(cnt).sort((a,b)=>b[1]-a[1]);
+  const max=s[0]?s[0][1]:1;
+  document.getElementById('modalCidTitulo').textContent='Cidades ('+s.length+' no total)';
+  document.getElementById('modalCidLista').innerHTML=s.map(([nome,n])=>{
+    const ativo=fi.cidade.includes(nome);
+    const pct=Math.round(n/max*100);
+    return `<div class="modal-item${ativo?' active':''}" onclick="toggleModalFiltro('cidade','${nome.replace(/'/g,"\\'")}')">
+      <span class="modal-item-name">${nome}</span>
+      <div class="modal-item-bar"><div class="modal-item-fill${ativo?' active':''}" style="width:${pct}%"></div></div>
+      <span class="modal-item-count">${fmt(n)}</span>
+    </div>`;
+  }).join('');
+  document.getElementById('modalCid').classList.add('vis');
+}
+
+function toggleModalFiltro(dim, val){
+  const arr=dim==='esp'?fi.esp:fi.cidade;
+  const i=arr.indexOf(val);
+  if(i>=0)arr.splice(i,1); else arr.push(val);
+  aplicarFiltros();
+  // Atualizar visual do modal sem fechar
+  if(dim==='esp')abrirModalEsp(); else abrirModalCid();
+}
+// ===================== INIT =====================
+document.getElementById('filtroSeg').style.display='none';
+document.getElementById('filtroSegInflu').style.display='';
+document.getElementById('filtroSegPresc').style.display='';
+document.getElementById('segPrescRow').style.display='block';
+document.getElementById('segTitulo').textContent='Seg. por Influência DOL';
+reconstruirSegCards();
+popularFiltros(BASE());
+aplicarFiltros();
+
+</script>
+</body>
+</html>
