@@ -275,13 +275,13 @@ tbody td{padding:8px 10px;}
           <div class="admin-upload-area" id="uploadAreaMed" onclick="document.getElementById('fileInputMed').click()"
             ondragover="event.preventDefault();this.classList.add('drag')"
             ondragleave="this.classList.remove('drag')"
-            ondrop="event.preventDefault();this.classList.remove('drag');processFile(event.dataTransfer.files[0],'medico')">
+            ondrop="event.preventDefault();this.classList.remove('drag');adminUploadFile(event.dataTransfer.files[0],'medico')">
             <div style="font-size:32px;">👨‍⚕️</div>
             <h3>Excel de Médicos</h3>
             <p>.xlsx ou .csv</p>
             <p id="uploadMsgMed" style="font-weight:600;color:#4B2D8F;margin-top:8px;"></p>
           </div>
-          <input type="file" id="fileInputMed" accept=".xlsx,.csv" style="display:none" onchange="processFile(this.files[0],'medico')">
+          <input type="file" id="fileInputMed" accept=".xlsx,.csv" style="display:none" onchange="adminUploadFile(this.files[0],'medico')">
           <div id="progressWrapMed" style="display:none;margin-top:12px;">
             <div style="display:flex;justify-content:space-between;font-size:12px;color:#7A6FA0;margin-bottom:4px;"><span id="progressTextMed">Processando...</span><span id="progressPctMed">0%</span></div>
             <div class="progress-bar"><div class="progress-fill" id="progressFillMed" style="width:0%"></div></div>
@@ -293,13 +293,13 @@ tbody td{padding:8px 10px;}
           <div class="admin-upload-area" id="uploadAreaNut" onclick="document.getElementById('fileInputNut').click()"
             ondragover="event.preventDefault();this.classList.add('drag')"
             ondragleave="this.classList.remove('drag')"
-            ondrop="event.preventDefault();this.classList.remove('drag');processFile(event.dataTransfer.files[0],'nutri')">
+            ondrop="event.preventDefault();this.classList.remove('drag');adminUploadFile(event.dataTransfer.files[0],'nutri')">
             <div style="font-size:32px;">👩‍⚕️</div>
             <h3>Excel de Nutris</h3>
             <p>.xlsx ou .csv</p>
             <p id="uploadMsgNut" style="font-weight:600;color:#4B2D8F;margin-top:8px;"></p>
           </div>
-          <input type="file" id="fileInputNut" accept=".xlsx,.csv" style="display:none" onchange="processFile(this.files[0],'nutri')">
+          <input type="file" id="fileInputNut" accept=".xlsx,.csv" style="display:none" onchange="adminUploadFile(this.files[0],'nutri')">
           <div id="progressWrapNut" style="display:none;margin-top:12px;">
             <div style="display:flex;justify-content:space-between;font-size:12px;color:#7A6FA0;margin-bottom:4px;"><span id="progressTextNut">Processando...</span><span id="progressPctNut">0%</span></div>
             <div class="progress-bar"><div class="progress-fill" id="progressFillNut" style="width:0%"></div></div>
@@ -613,7 +613,7 @@ async function carregarDatasetInfo(){
   } else { el.innerHTML='<p>Nenhum dataset carregado. Faça upload abaixo.</p>'; }
 }
 
-async function processFile(file,tipo='medico'){
+async function adminUploadFile(file,tipo='medico'){
   if(!file) return;
   const sfx=tipo==='nutri'?'Nut':'Med';
   document.getElementById('progressWrap'+sfx).style.display='block';
