@@ -268,24 +268,44 @@ tbody td{padding:8px 10px;}
   </div>
   <div class="admin-content">
     <div id="tabDados">
-      <div class="admin-section"><h2>📁 Dataset atual</h2><div id="datasetInfo" style="color:#7A6FA0;font-size:13px;">Carregando...</div></div>
-      <div class="admin-section">
-        <h2>⬆️ Carregar novo Excel</h2>
-        <div class="admin-upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()"
-          ondragover="event.preventDefault();this.classList.add('drag')"
-          ondragleave="this.classList.remove('drag')"
-          ondrop="event.preventDefault();this.classList.remove('drag');processFile(event.dataTransfer.files[0])">
-          <div style="font-size:36px;">📊</div>
-          <h3>Clique ou arraste o Excel aqui</h3>
-          <p>Arquivo .xlsx ou .csv</p>
-          <p id="uploadMsg" style="font-weight:600;color:#4B2D8F;margin-top:8px;"></p>
+      <div class="admin-section"><h2>📁 Datasets carregados</h2><div id="datasetInfo" style="color:#7A6FA0;font-size:13px;">Carregando...</div></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        <div class="admin-section">
+          <h2>🩺 Base de Médicos</h2>
+          <div class="admin-upload-area" id="uploadAreaMed" onclick="document.getElementById('fileInputMed').click()"
+            ondragover="event.preventDefault();this.classList.add('drag')"
+            ondragleave="this.classList.remove('drag')"
+            ondrop="event.preventDefault();this.classList.remove('drag');processFile(event.dataTransfer.files[0],'medico')">
+            <div style="font-size:32px;">👨‍⚕️</div>
+            <h3>Excel de Médicos</h3>
+            <p>.xlsx ou .csv</p>
+            <p id="uploadMsgMed" style="font-weight:600;color:#4B2D8F;margin-top:8px;"></p>
+          </div>
+          <input type="file" id="fileInputMed" accept=".xlsx,.csv" style="display:none" onchange="processFile(this.files[0],'medico')">
+          <div id="progressWrapMed" style="display:none;margin-top:12px;">
+            <div style="display:flex;justify-content:space-between;font-size:12px;color:#7A6FA0;margin-bottom:4px;"><span id="progressTextMed">Processando...</span><span id="progressPctMed">0%</span></div>
+            <div class="progress-bar"><div class="progress-fill" id="progressFillMed" style="width:0%"></div></div>
+          </div>
+          <div class="admin-status" id="uploadStatusMed"></div>
         </div>
-        <input type="file" id="fileInput" accept=".xlsx,.csv" style="display:none" onchange="processFile(this.files[0])">
-        <div id="progressWrap" style="display:none;margin-top:12px;">
-          <div style="display:flex;justify-content:space-between;font-size:12px;color:#7A6FA0;margin-bottom:4px;"><span id="progressText">Processando...</span><span id="progressPct">0%</span></div>
-          <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+        <div class="admin-section">
+          <h2>🥗 Base de Nutris</h2>
+          <div class="admin-upload-area" id="uploadAreaNut" onclick="document.getElementById('fileInputNut').click()"
+            ondragover="event.preventDefault();this.classList.add('drag')"
+            ondragleave="this.classList.remove('drag')"
+            ondrop="event.preventDefault();this.classList.remove('drag');processFile(event.dataTransfer.files[0],'nutri')">
+            <div style="font-size:32px;">👩‍⚕️</div>
+            <h3>Excel de Nutris</h3>
+            <p>.xlsx ou .csv</p>
+            <p id="uploadMsgNut" style="font-weight:600;color:#4B2D8F;margin-top:8px;"></p>
+          </div>
+          <input type="file" id="fileInputNut" accept=".xlsx,.csv" style="display:none" onchange="processFile(this.files[0],'nutri')">
+          <div id="progressWrapNut" style="display:none;margin-top:12px;">
+            <div style="display:flex;justify-content:space-between;font-size:12px;color:#7A6FA0;margin-bottom:4px;"><span id="progressTextNut">Processando...</span><span id="progressPctNut">0%</span></div>
+            <div class="progress-bar"><div class="progress-fill" id="progressFillNut" style="width:0%"></div></div>
+          </div>
+          <div class="admin-status" id="uploadStatusNut"></div>
         </div>
-        <div class="admin-status" id="uploadStatus"></div>
       </div>
     </div>
     <div id="tabUsuarios" style="display:none">
@@ -581,16 +601,24 @@ async function carregarDatasetInfo(){
   const r=await fetch('/api/dataset'); const d=await r.json();
   const el=document.getElementById('datasetInfo');
   if(d&&d.length){
-    const dt=new Date(d[0].created_at).toLocaleString('pt-BR');
-    el.innerHTML=`<div class="dataset-card"><div><h3>📊 ${d[0].nome}</h3><p>${(d[0].total_registros||0).toLocaleString('pt-BR')} registros · ${dt}</p></div><button class="admin-btn admin-btn-danger" onclick="excluirDataset()">🗑 Remover</button></div>`;
-  } else { el.innerHTML='<p>Nenhum dataset. Faça upload abaixo.</p>'; }
+    const med=d.find(x=>x.tipo==='medico'||!x.tipo);
+    const nut=d.find(x=>x.tipo==='nutri');
+    let html='<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">';
+    if(med){ const dt=new Date(med.created_at).toLocaleString('pt-BR'); html+=`<div class="dataset-card"><div><h3>🩺 ${med.nome}</h3><p>${(med.total_registros||0).toLocaleString('pt-BR')} médicos · ${dt}</p></div><button class="admin-btn admin-btn-danger" onclick="excluirDataset('medico')" style="padding:6px 12px;font-size:11px;">🗑</button></div>`; }
+    else html+='<div class="dataset-card" style="opacity:0.5"><div><h3>🩺 Médicos</h3><p>Nenhum dataset</p></div></div>';
+    if(nut){ const dt=new Date(nut.created_at).toLocaleString('pt-BR'); html+=`<div class="dataset-card"><div><h3>🥗 ${nut.nome}</h3><p>${(nut.total_registros||0).toLocaleString('pt-BR')} nutris · ${dt}</p></div><button class="admin-btn admin-btn-danger" onclick="excluirDataset('nutri')" style="padding:6px 12px;font-size:11px;">🗑</button></div>`; }
+    else html+='<div class="dataset-card" style="opacity:0.5"><div><h3>🥗 Nutris</h3><p>Nenhum dataset</p></div></div>';
+    html+='</div>';
+    el.innerHTML=html;
+  } else { el.innerHTML='<p>Nenhum dataset carregado. Faça upload abaixo.</p>'; }
 }
 
-async function processFile(file){
+async function processFile(file,tipo='medico'){
   if(!file) return;
-  document.getElementById('progressWrap').style.display='block';
-  const setP=(pct,txt)=>{ document.getElementById('progressFill').style.width=pct+'%'; document.getElementById('progressPct').textContent=pct+'%'; document.getElementById('progressText').textContent=txt; };
-  setP(5,'Lendo arquivo...'); document.getElementById('uploadMsg').textContent='⏳ Lendo...';
+  const sfx=tipo==='nutri'?'Nut':'Med';
+  document.getElementById('progressWrap'+sfx).style.display='block';
+  const setP=(pct,txt)=>{ document.getElementById('progressFill'+sfx).style.width=pct+'%'; document.getElementById('progressPct'+sfx).textContent=pct+'%'; document.getElementById('progressText'+sfx).textContent=txt; };
+  setP(5,'Lendo arquivo...'); document.getElementById('uploadMsg'+sfx).textContent='⏳ Lendo...';
   const reader=new FileReader();
   reader.onload=async(e)=>{
     let rows=[];
@@ -619,19 +647,21 @@ async function processFile(file){
     setP(60,'Enviando para o servidor...');
     const resp=await fetch('/api/upload',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({rows:processed,nome:file.name})});
     const result=await resp.json();
-    if(!resp.ok){showStatus('uploadStatus','err','❌ '+result.error);setP(0,'Erro');return;}
+    if(!resp.ok){showStatus('uploadStatus'+sfx,'err','❌ '+result.error);setP(0,'Erro');return;}
     setP(100,'Concluído!');
     document.getElementById('uploadMsg').textContent='✅ '+processed.length.toLocaleString('pt-BR')+' registros salvos!';
-    document.getElementById('uploadArea').classList.add('done');
-    showStatus('uploadStatus','ok','✅ '+processed.length.toLocaleString('pt-BR')+' registros carregados! Todos os usuários já veem os dados atualizados.');
+    document.getElementById('uploadArea'+sfx).classList.add('done');
+    showStatus('uploadStatus'+sfx,'ok','✅ '+processed.length.toLocaleString('pt-BR')+' registros carregados! Todos os usuários já veem os dados atualizados.');
     carregarDatasetInfo();
   };
   if(file.name.toLowerCase().endsWith('.csv')) reader.readAsText(file,'utf-8'); else reader.readAsArrayBuffer(file);
 }
 
-async function excluirDataset(){
-  if(!confirm('Remover todos os dados?')) return;
-  await fetch('/api/delete-dataset',{method:'POST'}); carregarDatasetInfo();
+async function excluirDataset(tipo){
+  const label=tipo==='nutri'?'nutris':'médicos';
+  if(!confirm('Remover dados de '+label+'?')) return;
+  await fetch('/api/delete-dataset',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({tipo})});
+  carregarDatasetInfo();
 }
 
 async function carregarUsuarios(){
