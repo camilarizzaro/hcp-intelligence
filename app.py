@@ -92,21 +92,24 @@ def api_hcps():
 @app.route('/api/dataset')
 @require_auth
 def api_dataset():
-    r = requests.get(f'{SUPABASE_URL}/rest/v1/datasets?select=*&order=created_at.desc&limit=1',
+    r = requests.get(f'{SUPABASE_URL}/rest/v1/datasets?select=*&order=created_at.desc&limit=10',
         headers=svc_headers())
     return jsonify(r.json())
 
 @app.route('/api/upload', methods=['POST'])
 @require_admin
 def api_upload():
-    import io
     data = request.json
     rows = data.get('rows', [])
     nome = data.get('nome', 'upload')
+    tipo = data.get('tipo', 'medico')  # 'medico' ou 'nutri'
     if not rows:
         return jsonify({'error': 'Nenhum dado recebido'}), 400
-    # Deletar dados antigos
-    requests.delete(f'{SUPABASE_URL}/rest/v1/hcps?id=gt.0', headers=svc_headers())
+    # Deletar apenas dados do tipo enviado
+    requests.delete(f'{SUPABASE_URL}/rest/v1/hcps?tipo=eq.{tipo}', headers=svc_headers())
+    # Garantir que todas as rows têm o tipo correto
+    for row in rows:
+        row['tipo'] = tipo
     # Inserir em lotes
     batch_size = 500
     for i in range(0, len(rows), batch_size):
@@ -119,14 +122,19 @@ def api_upload():
     # Registrar dataset
     requests.post(f'{SUPABASE_URL}/rest/v1/datasets',
         headers={**svc_headers(), 'Prefer': 'return=minimal'},
-        json={'nome': nome, 'total_registros': len(rows), 'uploaded_by': session['user_id']})
+        json={'nome': nome, 'total_registros': len(rows), 'uploaded_by': session['user_id'], 'tipo': tipo})
     return jsonify({'ok': True, 'total': len(rows)})
 
 @app.route('/api/delete-dataset', methods=['POST'])
 @require_admin
 def api_delete_dataset():
-    requests.delete(f'{SUPABASE_URL}/rest/v1/hcps?id=gt.0', headers=svc_headers())
-    requests.delete(f'{SUPABASE_URL}/rest/v1/datasets?id=gt.0', headers=svc_headers())
+    tipo = request.json.get('tipo') if request.json else None
+    if tipo:
+        requests.delete(f'{SUPABASE_URL}/rest/v1/hcps?tipo=eq.{tipo}', headers=svc_headers())
+        requests.delete(f'{SUPABASE_URL}/rest/v1/datasets?tipo=eq.{tipo}', headers=svc_headers())
+    else:
+        requests.delete(f'{SUPABASE_URL}/rest/v1/hcps?id=gt.0', headers=svc_headers())
+        requests.delete(f'{SUPABASE_URL}/rest/v1/datasets?id=gt.0', headers=svc_headers())
     return jsonify({'ok': True})
 
 # ─── USUÁRIOS ────────────────────────────────────────────
