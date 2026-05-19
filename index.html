@@ -221,6 +221,159 @@ tbody td{padding:8px 10px;}
 .modal-item-fill.active{background:var(--orange);}
 .modal-item-count{font-size:11px;color:#7A6FA0;font-weight:700;min-width:36px;text-align:right;}
 
+
+:root{
+  --bg:#F0EFF5;--surface:#fff;--surface2:#F7F5FB;--border:#E2DCF0;
+  --primary:#4B2D8F;--primary2:#6A42C2;--orange:#F47920;--orange2:#E05A00;
+  --green:#16A34A;--blue:#0284C7;--text:#1A1A2E;--muted:#7A6FA0;
+  --radius:14px;--shadow:0 2px 16px rgba(75,45,143,0.08);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Open Sans',sans-serif;font-size:14px;min-height:100vh;}
+
+/* HEADER */
+header{background:linear-gradient(135deg,var(--primary) 0%,var(--primary2) 100%);padding:13px 26px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:300;box-shadow:0 2px 20px rgba(75,45,143,0.3);}
+.logo-area{display:flex;align-items:center;gap:11px;}
+.logo-q{width:36px;height:36px;border-radius:50%;background:var(--orange);display:flex;align-items:center;justify-content:center;font-family:'Montserrat',sans-serif;font-weight:800;font-size:17px;color:#fff;flex-shrink:0;}
+.logo-text h1{font-family:'Montserrat',sans-serif;font-size:16px;font-weight:700;color:#fff;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.prof-switcher{display:inline-flex;background:rgba(255,255,255,0.15);border-radius:20px;overflow:hidden;border:1px solid rgba(255,255,255,0.2);}
+.prof-btn{padding:3px 13px;font-size:11px;font-family:'Montserrat',sans-serif;font-weight:700;color:rgba(255,255,255,0.55);cursor:pointer;transition:all 0.18s;border:none;background:transparent;}
+.prof-btn.active{background:var(--orange);color:#fff;border-radius:20px;}
+.logo-text small{font-size:10px;color:rgba(255,255,255,0.5);font-weight:300;letter-spacing:1px;text-transform:uppercase;display:block;margin-top:1px;}
+.header-right{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.badge{padding:4px 11px;border-radius:20px;font-size:10px;font-weight:700;font-family:'Montserrat',sans-serif;}
+.b-demo{background:rgba(244,121,32,0.25);color:#FFB870;border:1px solid rgba(244,121,32,0.4);}
+.b-med{background:rgba(100,220,120,0.2);color:#7DEFA0;border:1px solid rgba(100,220,120,0.4);display:none;}
+.b-nut{background:rgba(100,180,255,0.2);color:#7DCFFF;border:1px solid rgba(100,180,255,0.4);display:none;}
+
+/* UPLOAD DUPLO */
+#uploadSection{background:var(--surface);border-bottom:2px solid var(--border);padding:14px 26px;display:flex;gap:12px;flex-wrap:wrap;align-items:stretch;}
+.upload-slot{display:flex;flex-direction:column;gap:6px;flex:1;min-width:220px;}
+.upload-slot-label{font-size:10px;font-weight:700;font-family:'Montserrat',sans-serif;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted);}
+.upload-box{border:2px dashed var(--primary2);border-radius:10px;padding:11px 16px;display:flex;align-items:center;gap:10px;cursor:pointer;background:var(--surface2);transition:all 0.18s;}
+.upload-box:hover,.upload-box.dragover{border-color:var(--orange);background:#FFF8F3;}
+.upload-box.loaded{border-color:var(--green);border-style:solid;background:rgba(22,163,74,0.04);}
+.upload-icon{font-size:20px;flex-shrink:0;}
+.upload-text strong{font-family:'Montserrat',sans-serif;font-size:11px;color:var(--primary);display:block;}
+.upload-text span{font-size:10px;color:var(--muted);}
+.upload-text .loaded-name{font-size:11px;color:var(--green);font-weight:600;}
+.upload-divider{width:1px;background:var(--border);align-self:stretch;margin:4px 0;}
+.upload-info{flex:1.5;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px 14px;min-width:180px;}
+.upload-info p{font-size:11px;color:var(--muted);}
+.upload-info strong{color:var(--primary);}
+.col-chips{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;}
+.col-chip{padding:2px 8px;border-radius:5px;font-size:10px;font-weight:700;font-family:'Montserrat',sans-serif;}
+.col-chip.ok{background:rgba(244,121,32,0.1);color:var(--orange2);border:1px solid rgba(244,121,32,0.2);}
+.col-chip.miss{background:rgba(120,120,120,0.07);color:#bbb;border:1px solid #e8e8e8;}
+input[type=file]{display:none;}
+
+/* BANNER FILTRO ATIVO */
+#activeFilterBanner{display:none;background:rgba(244,121,32,0.07);border:1px solid rgba(244,121,32,0.2);border-radius:8px;padding:5px 14px;font-size:12px;color:var(--orange2);margin:10px 26px 0;font-weight:600;display:flex;align-items:center;justify-content:space-between;}
+#activeFilterBanner.vis{display:flex;}
+.clear-btn{cursor:pointer;font-size:11px;opacity:0.7;padding:2px 8px;border-radius:5px;background:rgba(244,121,32,0.1);transition:opacity 0.15s;}
+.clear-btn:hover{opacity:1;}
+
+/* FILTERS */
+.filters-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:9px 26px;display:flex;align-items:center;gap:7px;flex-wrap:wrap;}
+.filter-label{color:var(--muted);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;font-family:'Montserrat',sans-serif;}
+select{background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:7px;padding:5px 26px 5px 9px;font-family:'Open Sans',sans-serif;font-size:12px;cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%237A6FA0'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;}
+select:focus{outline:none;border-color:var(--primary);}
+.btn-reset{background:transparent;border:1px solid var(--border);border-radius:7px;padding:5px 11px;font-size:11px;color:var(--muted);cursor:pointer;font-family:'Open Sans',sans-serif;transition:all 0.15s;}
+.btn-reset:hover{border-color:var(--orange);color:var(--orange);}
+
+/* MAIN */
+main{padding:18px 26px;max-width:1600px;margin:0 auto;}
+
+/* KPI */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:11px;margin-bottom:18px;}
+.kpi-card{background:var(--surface);border-radius:var(--radius);padding:15px 17px;position:relative;overflow:hidden;box-shadow:var(--shadow);border:1px solid var(--border);transition:transform 0.15s,box-shadow 0.15s;}
+.kpi-card:hover{transform:translateY(-2px);box-shadow:0 6px 24px rgba(75,45,143,0.13);}
+.kpi-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;}
+.kpi-card.c1::after{background:var(--primary)}.kpi-card.c2::after{background:var(--orange)}.kpi-card.c3::after{background:var(--primary2)}.kpi-card.c4::after{background:var(--blue)}
+.kpi-icon{font-size:20px;margin-bottom:7px;}
+.kpi-label{font-size:10px;font-weight:700;font-family:'Montserrat',sans-serif;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted);margin-bottom:4px;}
+.kpi-value{font-size:24px;font-family:'Montserrat',sans-serif;font-weight:800;color:var(--primary);line-height:1;margin-bottom:3px;}
+.kpi-sub{font-size:11px;color:var(--muted);}
+
+/* GRIDS */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:13px;margin-bottom:13px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:13px;margin-bottom:13px;}
+.g21{display:grid;grid-template-columns:2fr 1fr;gap:13px;margin-bottom:13px;}
+
+.card{background:var(--surface);border-radius:var(--radius);padding:17px 19px;box-shadow:var(--shadow);border:1px solid var(--border);}
+.card-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:13px;}
+.card-title{font-family:'Montserrat',sans-serif;font-size:13px;font-weight:700;color:var(--primary);}
+.card-subtitle{font-size:11px;color:var(--muted);margin-top:2px;}
+.card-tag{font-size:10px;font-weight:700;padding:3px 8px;border-radius:9px;font-family:'Montserrat',sans-serif;background:rgba(244,121,32,0.1);color:var(--orange2);border:1px solid rgba(244,121,32,0.2);white-space:nowrap;flex-shrink:0;}
+.card-tag.interactive{background:rgba(75,45,143,0.08);color:var(--primary2);border-color:rgba(75,45,143,0.2);}
+canvas{max-height:195px;}
+.clickable-chart{cursor:pointer;}
+
+/* SEG CARDS */
+.seg-wrap{display:flex;gap:7px;margin-top:9px;}
+.seg-card{flex:1;border-radius:9px;padding:10px 6px;text-align:center;border:2px solid var(--border);background:var(--surface2);cursor:pointer;transition:all 0.18s;}
+.seg-card:hover{border-color:var(--orange);transform:translateY(-1px);}
+.seg-card.active-seg{border-color:var(--orange);background:#FFF3E8;box-shadow:0 2px 10px rgba(244,121,32,0.18);}
+.seg-label{font-size:10px;font-family:'Montserrat',sans-serif;font-weight:700;text-transform:uppercase;color:var(--muted);margin-bottom:2px;}
+.seg-value{font-family:'Montserrat',sans-serif;font-size:19px;font-weight:800;}
+.seg-sub{font-size:10px;color:var(--muted);margin-top:1px;}
+.kol{color:var(--orange)}.kof{color:var(--primary2)}.hcp{color:var(--green)}.sem{color:#bbb;}
+
+/* COMPLETUDE */
+.completude-row{display:flex;align-items:center;gap:9px;margin-bottom:8px;}
+.completude-name{width:78px;font-size:11px;color:var(--muted);font-weight:600;flex-shrink:0;}
+.completude-bar-bg{flex:1;background:var(--border);border-radius:4px;height:7px;overflow:hidden;}
+.completude-bar{height:7px;border-radius:4px;background:linear-gradient(90deg,var(--primary),var(--orange));}
+.completude-pct{width:34px;text-align:right;font-size:12px;font-weight:700;color:var(--primary);}
+
+/* TABLE */
+.table-wrap{overflow-x:auto;margin-top:5px;}
+table{width:100%;border-collapse:collapse;font-size:12px;}
+thead th{text-align:left;padding:8px 10px;color:var(--muted);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.4px;border-bottom:2px solid var(--border);font-family:'Montserrat',sans-serif;}
+tbody tr{border-bottom:1px solid var(--border);transition:background 0.1s;}
+tbody tr:hover{background:var(--surface2);}
+tbody td{padding:8px 10px;}
+.tag{display:inline-block;padding:2px 7px;border-radius:5px;font-size:10px;font-weight:700;font-family:'Montserrat',sans-serif;}
+.tag-kol{background:rgba(244,121,32,0.12);color:var(--orange2);}
+.tag-kof{background:rgba(106,66,194,0.12);color:var(--primary2);}
+.tag-hcp{background:rgba(22,163,74,0.12);color:var(--green);}
+.tag-sem{background:rgba(150,150,150,0.1);color:#bbb;}
+.tag-sim{background:rgba(22,163,74,0.1);color:var(--green);}
+
+@media(max-width:900px){
+  .g2,.g3,.g21{grid-template-columns:1fr;}
+  main,#uploadSection,.filters-bar{padding-left:12px;padding-right:12px;}
+  #activeFilterBanner{margin-left:12px;margin-right:12px;}
+}
+.tag-dol10k{background:rgba(8,145,178,.12);color:#0891B2}
+.tag-dol30k{background:rgba(147,51,234,.12);color:#9333EA}
+.tag-dol50k{background:rgba(190,24,93,.12);color:#BE185D}
+.tag-dol100k{background:rgba(220,38,38,.12);color:#DC2626}
+.tag-cat1{background:rgba(244,121,32,.12);color:#E05A00}
+.tag-cat2{background:rgba(2,132,199,.12);color:#0284C7}
+.tag-cat3{background:rgba(22,163,74,.12);color:#16A34A}
+.tag-cat4{background:rgba(150,150,150,.12);color:#6B7280}
+.dol10k{color:#0891B2}.dol30k{color:#9333EA}.dol50k{color:#BE185D}.dol100k{color:#DC2626}
+.cat1{color:#F47920}.cat2{color:#0284C7}.cat3{color:#16A34A}.cat4{color:#6B7280}
+
+/* Modal ver todas */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(30,20,60,0.45);z-index:9999;align-items:center;justify-content:center;}
+.modal-overlay.vis{display:flex;}
+.modal-box{background:#fff;border-radius:16px;padding:20px 24px;width:520px;max-width:95vw;max-height:80vh;display:flex;flex-direction:column;box-shadow:0 8px 40px rgba(75,45,143,0.25);}
+.modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.modal-title{font-family:'Montserrat',sans-serif;font-size:14px;font-weight:700;color:var(--purple);}
+.modal-close{background:none;border:none;cursor:pointer;font-size:20px;color:#aaa;line-height:1;}
+.modal-close:hover{color:var(--purple);}
+.modal-list{overflow-y:auto;flex:1;}
+.modal-item{display:flex;align-items:center;justify-content:space-between;padding:7px 10px;border-radius:8px;cursor:pointer;margin-bottom:2px;transition:background 0.12s;}
+.modal-item:hover{background:#F0EFF5;}
+.modal-item.active{background:rgba(244,121,32,0.1);border:1px solid rgba(244,121,32,0.3);}
+.modal-item-name{font-size:12px;color:#3D2B6B;font-weight:600;}
+.modal-item-bar{flex:1;margin:0 10px;height:6px;background:#E2DCF0;border-radius:3px;overflow:hidden;}
+.modal-item-fill{height:6px;border-radius:3px;background:var(--purple2);}
+.modal-item-fill.active{background:var(--orange);}
+.modal-item-count{font-size:11px;color:#7A6FA0;font-weight:700;min-width:36px;text-align:right;}
+
 /* TOGGLE ABS / PCT */
 .view-toggle{display:flex;background:var(--surface2);border:1px solid var(--border);border-radius:8px;overflow:hidden;flex-shrink:0;}
 .view-btn{padding:3px 11px;font-size:10px;font-weight:700;font-family:'Montserrat',sans-serif;color:var(--muted);cursor:pointer;border:none;background:transparent;transition:all 0.15s;white-space:nowrap;}
@@ -268,24 +421,44 @@ tbody td{padding:8px 10px;}
   </div>
   <div class="admin-content">
     <div id="tabDados">
-      <div class="admin-section"><h2>📁 Dataset atual</h2><div id="datasetInfo" style="color:#7A6FA0;font-size:13px;">Carregando...</div></div>
-      <div class="admin-section">
-        <h2>⬆️ Carregar novo Excel</h2>
-        <div class="admin-upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()"
-          ondragover="event.preventDefault();this.classList.add('drag')"
-          ondragleave="this.classList.remove('drag')"
-          ondrop="event.preventDefault();this.classList.remove('drag');processFile(event.dataTransfer.files[0])">
-          <div style="font-size:36px;">📊</div>
-          <h3>Clique ou arraste o Excel aqui</h3>
-          <p>Arquivo .xlsx ou .csv</p>
-          <p id="uploadMsg" style="font-weight:600;color:#4B2D8F;margin-top:8px;"></p>
+      <div class="admin-section"><h2>📁 Datasets carregados</h2><div id="datasetInfo" style="color:#7A6FA0;font-size:13px;">Carregando...</div></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        <div class="admin-section">
+          <h2>🩺 Base de Médicos</h2>
+          <div class="admin-upload-area" id="uploadAreaMed" onclick="document.getElementById('fileInputMed').click()"
+            ondragover="event.preventDefault();this.classList.add('drag')"
+            ondragleave="this.classList.remove('drag')"
+            ondrop="event.preventDefault();this.classList.remove('drag');adminUploadFile(event.dataTransfer.files[0],'medico')">
+            <div style="font-size:32px;">👨‍⚕️</div>
+            <h3>Excel de Médicos</h3>
+            <p>.xlsx ou .csv</p>
+            <p id="uploadMsgMed" style="font-weight:600;color:#4B2D8F;margin-top:8px;"></p>
+          </div>
+          <input type="file" id="fileInputMed" accept=".xlsx,.csv" style="display:none" onchange="adminUploadFile(this.files[0],'medico')">
+          <div id="progressWrapMed" style="display:none;margin-top:12px;">
+            <div style="display:flex;justify-content:space-between;font-size:12px;color:#7A6FA0;margin-bottom:4px;"><span id="progressTextMed">Processando...</span><span id="progressPctMed">0%</span></div>
+            <div class="progress-bar"><div class="progress-fill" id="progressFillMed" style="width:0%"></div></div>
+          </div>
+          <div class="admin-status" id="uploadStatusMed"></div>
         </div>
-        <input type="file" id="fileInput" accept=".xlsx,.csv" style="display:none" onchange="processFile(this.files[0])">
-        <div id="progressWrap" style="display:none;margin-top:12px;">
-          <div style="display:flex;justify-content:space-between;font-size:12px;color:#7A6FA0;margin-bottom:4px;"><span id="progressText">Processando...</span><span id="progressPct">0%</span></div>
-          <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+        <div class="admin-section">
+          <h2>🥗 Base de Nutris</h2>
+          <div class="admin-upload-area" id="uploadAreaNut" onclick="document.getElementById('fileInputNut').click()"
+            ondragover="event.preventDefault();this.classList.add('drag')"
+            ondragleave="this.classList.remove('drag')"
+            ondrop="event.preventDefault();this.classList.remove('drag');adminUploadFile(event.dataTransfer.files[0],'nutri')">
+            <div style="font-size:32px;">👩‍⚕️</div>
+            <h3>Excel de Nutris</h3>
+            <p>.xlsx ou .csv</p>
+            <p id="uploadMsgNut" style="font-weight:600;color:#4B2D8F;margin-top:8px;"></p>
+          </div>
+          <input type="file" id="fileInputNut" accept=".xlsx,.csv" style="display:none" onchange="adminUploadFile(this.files[0],'nutri')">
+          <div id="progressWrapNut" style="display:none;margin-top:12px;">
+            <div style="display:flex;justify-content:space-between;font-size:12px;color:#7A6FA0;margin-bottom:4px;"><span id="progressTextNut">Processando...</span><span id="progressPctNut">0%</span></div>
+            <div class="progress-bar"><div class="progress-fill" id="progressFillNut" style="width:0%"></div></div>
+          </div>
+          <div class="admin-status" id="uploadStatusNut"></div>
         </div>
-        <div class="admin-status" id="uploadStatus"></div>
       </div>
     </div>
     <div id="tabUsuarios" style="display:none">
@@ -463,7 +636,7 @@ tbody td{padding:8px 10px;}
   <div class="g3">
     <div class="card">
       <div class="card-header">
-        <div><div class="card-title">HCPs por UF</div><div class="card-subtitle">Clique para filtrar</div></div>
+        <div><div class="card-title">HCPs por UF</div><div class="card-subtitle">Clique para filtrar</div></div><button class="btn-ver-todas" onclick="abrirModalUF()">Ver todas ↗</button>
         <span class="card-tag interactive">🖱 Clicável</span>
       </div>
       <canvas id="chartUF" class="clickable-chart"></canvas>
@@ -514,6 +687,16 @@ tbody td{padding:8px 10px;}
 
 
 <!-- Modal especialidades -->
+<div class="modal-overlay" id="modalUF" onclick="if(event.target===this)fecharModal('modalUF')">
+  <div class="modal-box">
+    <div class="modal-header">
+      <span class="modal-title" id="modalUFTitulo">Todos os Estados</span>
+      <button class="modal-close" onclick="fecharModal('modalUF')">×</button>
+    </div>
+    <div class="modal-list" id="modalUFLista"></div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="modalEsp" onclick="if(event.target===this)fecharModal('modalEsp')">
   <div class="modal-box">
     <div class="modal-header">
@@ -533,7 +716,6 @@ tbody td{padding:8px 10px;}
     <div class="modal-list" id="modalCidLista"></div>
   </div>
 </div>
-
 </div>
 
 <script>
@@ -581,16 +763,24 @@ async function carregarDatasetInfo(){
   const r=await fetch('/api/dataset'); const d=await r.json();
   const el=document.getElementById('datasetInfo');
   if(d&&d.length){
-    const dt=new Date(d[0].created_at).toLocaleString('pt-BR');
-    el.innerHTML=`<div class="dataset-card"><div><h3>📊 ${d[0].nome}</h3><p>${(d[0].total_registros||0).toLocaleString('pt-BR')} registros · ${dt}</p></div><button class="admin-btn admin-btn-danger" onclick="excluirDataset()">🗑 Remover</button></div>`;
-  } else { el.innerHTML='<p>Nenhum dataset. Faça upload abaixo.</p>'; }
+    const med=d.find(x=>x.tipo==='medico'||!x.tipo);
+    const nut=d.find(x=>x.tipo==='nutri');
+    let html='<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">';
+    if(med){ const dt=new Date(med.created_at).toLocaleString('pt-BR'); html+=`<div class="dataset-card"><div><h3>🩺 ${med.nome}</h3><p>${(med.total_registros||0).toLocaleString('pt-BR')} médicos · ${dt}</p></div><button class="admin-btn admin-btn-danger" onclick="excluirDataset('medico')" style="padding:6px 12px;font-size:11px;">🗑</button></div>`; }
+    else html+='<div class="dataset-card" style="opacity:0.5"><div><h3>🩺 Médicos</h3><p>Nenhum dataset</p></div></div>';
+    if(nut){ const dt=new Date(nut.created_at).toLocaleString('pt-BR'); html+=`<div class="dataset-card"><div><h3>🥗 ${nut.nome}</h3><p>${(nut.total_registros||0).toLocaleString('pt-BR')} nutris · ${dt}</p></div><button class="admin-btn admin-btn-danger" onclick="excluirDataset('nutri')" style="padding:6px 12px;font-size:11px;">🗑</button></div>`; }
+    else html+='<div class="dataset-card" style="opacity:0.5"><div><h3>🥗 Nutris</h3><p>Nenhum dataset</p></div></div>';
+    html+='</div>';
+    el.innerHTML=html;
+  } else { el.innerHTML='<p>Nenhum dataset carregado. Faça upload abaixo.</p>'; }
 }
 
-async function processFile(file){
+async function adminUploadFile(file,tipo='medico'){
   if(!file) return;
-  document.getElementById('progressWrap').style.display='block';
-  const setP=(pct,txt)=>{ document.getElementById('progressFill').style.width=pct+'%'; document.getElementById('progressPct').textContent=pct+'%'; document.getElementById('progressText').textContent=txt; };
-  setP(5,'Lendo arquivo...'); document.getElementById('uploadMsg').textContent='⏳ Lendo...';
+  const sfx=tipo==='nutri'?'Nut':'Med';
+  document.getElementById('progressWrap'+sfx).style.display='block';
+  const setP=(pct,txt)=>{ document.getElementById('progressFill'+sfx).style.width=pct+'%'; document.getElementById('progressPct'+sfx).textContent=pct+'%'; document.getElementById('progressText'+sfx).textContent=txt; };
+  setP(5,'Lendo arquivo...'); document.getElementById('uploadMsg'+sfx).textContent='⏳ Lendo...';
   const reader=new FileReader();
   reader.onload=async(e)=>{
     let rows=[];
@@ -614,24 +804,26 @@ async function processFile(file){
     const processed=rows.map((row,i)=>{
       const get=f=>c[f]?String(row[c[f]]||''):'';
       const num=f=>{const n=parseFloat(get(f).replace(/[^0-9.,-]/g,'').replace(',','.'));return isNaN(n)?0:n;};
-      return {crm:get('crm')||String(i+1),nome:get('nome')||'Registro '+(i+1),uf:get('uf').toUpperCase().substring(0,2)||null,cidade:get('cidade')||null,seg:'',seg_influ:dM[get('segInflu').trim()]||get('segInflu').trim(),seg_presc:cM[get('segPresc').trim()]||get('segPresc').trim(),nseg:num('nseg'),consulta:num('consulta'),local:get('local')||'',pacientes:num('pacientes'),esp1:get('esp1')||null,esp2:get('esp2')||null,cat_esp:get('catEsp')||null,tipo:'medico'};
+      return {crm:get('crm')||String(i+1),nome:get('nome')||'Registro '+(i+1),uf:get('uf').toUpperCase().substring(0,2)||null,cidade:get('cidade')||null,seg:'',seg_influ:dM[get('segInflu').trim()]||get('segInflu').trim(),seg_presc:cM[get('segPresc').trim()]||get('segPresc').trim(),nseg:num('nseg'),consulta:num('consulta'),local:get('local')||'',pacientes:num('pacientes'),esp1:get('esp1')||null,esp2:get('esp2')||null,cat_esp:get('catEsp')||null,tipo:tipo};
     }).filter(r=>r.nome&&r.nome!=='Registro '+(rows.indexOf(rows.find(x=>!x))+1));
     setP(60,'Enviando para o servidor...');
-    const resp=await fetch('/api/upload',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({rows:processed,nome:file.name})});
+    const resp=await fetch('/api/upload',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({rows:processed,nome:file.name,tipo:tipo})});
     const result=await resp.json();
-    if(!resp.ok){showStatus('uploadStatus','err','❌ '+result.error);setP(0,'Erro');return;}
+    if(!resp.ok){showStatus('uploadStatus'+sfx,'err','❌ '+result.error);setP(0,'Erro');return;}
     setP(100,'Concluído!');
-    document.getElementById('uploadMsg').textContent='✅ '+processed.length.toLocaleString('pt-BR')+' registros salvos!';
-    document.getElementById('uploadArea').classList.add('done');
-    showStatus('uploadStatus','ok','✅ '+processed.length.toLocaleString('pt-BR')+' registros carregados! Todos os usuários já veem os dados atualizados.');
+    document.getElementById('uploadMsg'+sfx).textContent='✅ '+processed.length.toLocaleString('pt-BR')+' registros salvos!';
+    document.getElementById('uploadArea'+sfx).classList.add('done');
+    showStatus('uploadStatus'+sfx,'ok','✅ '+processed.length.toLocaleString('pt-BR')+' registros carregados! Todos os usuários já veem os dados atualizados.');
     carregarDatasetInfo();
   };
   if(file.name.toLowerCase().endsWith('.csv')) reader.readAsText(file,'utf-8'); else reader.readAsArrayBuffer(file);
 }
 
-async function excluirDataset(){
-  if(!confirm('Remover todos os dados?')) return;
-  await fetch('/api/delete-dataset',{method:'POST'}); carregarDatasetInfo();
+async function excluirDataset(tipo){
+  const label=tipo==='nutri'?'nutris':'médicos';
+  if(!confirm('Remover dados de '+label+'?')) return;
+  await fetch('/api/delete-dataset',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({tipo})});
+  carregarDatasetInfo();
 }
 
 async function carregarUsuarios(){
@@ -1173,7 +1365,7 @@ function renderEspecialidades(){
   const s=Object.entries(cnt).sort((a,b)=>b[1]-a[1]).slice(0,isCat?20:10);
   const activeKeys=isCat?fi.catEsp:fi.esp;
   const rawVals=s.map(x=>x[1]);
-  const total=rawVals.reduce((a,b)=>a+b,0);
+  const total=filtrados.length||1;
   const dispVals=toViewData(rawVals,total);
   const bg=s.map(([l])=>activeKeys.includes(l)?CO:CP2+'88');
   const bd=s.map(([l])=>activeKeys.includes(l)?CO:CP2);
@@ -1208,7 +1400,7 @@ function renderUF(){
   base.filter(d=>d.uf&&d.uf!=='??'&&d.uf.length===2).forEach(d=>cnt[d.uf]=(cnt[d.uf]||0)+1);
   const s=Object.entries(cnt).sort((a,b)=>b[1]-a[1]).slice(0,12);
   const rawVals=s.map(x=>x[1]);
-  const total=rawVals.reduce((a,b)=>a+b,0);
+  const total=filtrados.length||1;
   const dispVals=toViewData(rawVals,total);
   const bg=s.map(([l])=>fi.uf.includes(l)?CO:CP+'88');
   const bd=s.map(([l])=>fi.uf.includes(l)?CO:CP);
@@ -1252,7 +1444,7 @@ function renderCidade(){
   document.getElementById('chartCidade').parentElement.style.height=Math.max(140,s.length*28)+'px';
 
   const rawValsCid=s.map(x=>x[1]);
-  const totalCid=rawValsCid.reduce((a,b)=>a+b,0);
+  const totalCid=filtrados.length||1;
   const dispValsCid=toViewData(rawValsCid,totalCid);
   charts['cc']=new Chart(document.getElementById('chartCidade').getContext('2d'),{
     type:'bar',
@@ -1293,7 +1485,7 @@ function renderFaixaSeg(){
   const vals=FAIXAS_SEG.map(f=>base.filter(d=>d.nseg>=f.min&&d.nseg<=f.max).length);
   const bg=FAIXAS_SEG.map((_,i)=>fi.faixaSeg===i?CO:CO+'55');
   const bd=FAIXAS_SEG.map((_,i)=>fi.faixaSeg===i?CO:CO);
-  const totalFaixa=vals.reduce((a,b)=>a+b,0);
+  const totalFaixa=filtrados.length||1;
   const dispFaixa=toViewData(vals,totalFaixa);
   charts['cfs']=new Chart(document.getElementById('chartFaixaSeg').getContext('2d'),{
     type:'bar',
@@ -1359,6 +1551,31 @@ function abrirModalEsp(){
     </div>`;
   }).join('');
   document.getElementById('modalEsp').classList.add('vis');
+}
+
+function abrirModalUF(){
+  const cnt={};
+  filtrados.filter(d=>d.uf&&d.uf.length===2).forEach(d=>cnt[d.uf]=(cnt[d.uf]||0)+1);
+  const s=Object.entries(cnt).sort((a,b)=>b[1]-a[1]);
+  const max=s[0]?s[0][1]:1;
+  document.getElementById('modalUFTitulo').textContent='Estados ('+s.length+' no total)';
+  document.getElementById('modalUFLista').innerHTML=s.map(([nome,n])=>{
+    const ativo=fi.uf.includes(nome);
+    const pct=Math.round(n/max*100);
+    return `<div class="modal-item${ativo?' active':''}" onclick="toggleModalFiltroUF('${nome}')">
+      <span class="modal-item-name">${nome}</span>
+      <div class="modal-item-bar"><div class="modal-item-fill${ativo?' active':''}" style="width:${pct}%"></div></div>
+      <span class="modal-item-count">${fmt(n)}</span>
+    </div>`;
+  }).join('');
+  document.getElementById('modalUF').classList.add('vis');
+}
+
+function toggleModalFiltroUF(val){
+  const i=fi.uf.indexOf(val);
+  if(i>=0)fi.uf.splice(i,1); else fi.uf.push(val);
+  aplicarFiltros();
+  abrirModalUF();
 }
 
 function abrirModalCid(){
